@@ -50,6 +50,9 @@ export default function PromocionesAdminPanel({
   toastError,
   toastWarning,
 }: PromocionesAdminPanelProps) {
+  // Estado de montaje para evitar problemas de hidratación
+  const [mounted, setMounted] = useState(false);
+  
   // Estados
   const [activeSection, setActiveSection] = useState<'creditos' | 'precios' | 'codigos'>('creditos');
   const [loading, setLoading] = useState(true);
@@ -78,6 +81,11 @@ export default function PromocionesAdminPanel({
     usosMaximos: 0,
     diasValidez: 30,
   });
+  
+  // Efecto de montaje
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   // Dar créditos
   const [showDarCreditos, setShowDarCreditos] = useState(false);
@@ -221,7 +229,7 @@ export default function PromocionesAdminPanel({
       ).slice(0, 5)
     : [];
 
-  if (loading) {
+  if (!mounted || loading) {
     return (
       <div className="flex items-center justify-center py-20">
         <Loader2 className="animate-spin text-blue-500" size={40} />
