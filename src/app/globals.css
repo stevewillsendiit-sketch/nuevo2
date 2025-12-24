@@ -1,0 +1,1044 @@
+@import "tailwindcss";
+
+/* ============================================
+   OCULTAR STRIPE LINK COMPLETAMENTE - SUPER AGRESIVO
+   ============================================ */
+
+/* Ocultar todo lo relacionado con Link de Stripe */
+.p-LinkAutofillPrompt,
+.p-LinkAutofillPrompt-container,
+[data-link-prompt],
+.LinkAutofillPrompt,
+div[class*="LinkAutofill"],
+div[class*="p-Link"],
+.p-GridCell--linkAutofill,
+.__PrivateStripeElement iframe[title*="Link"],
+div[class*="__privateStripeLink"],
+.p-Input--link,
+.p-Input__linkAutofillContainer,
+button[class*="Link"],
+.p-LinkButton,
+[class*="linkPrompt"],
+[class*="LinkPrompt"],
+/* Selectores adicionales mega agresivos */
+*[class*="link" i]:not(a):not([href]),
+*[class*="Link"]:not(a):not([href]),
+div[class*="Autofill"],
+button[data-testid*="link"],
+div[data-testid*="link"],
+[aria-label*="Link"],
+[aria-label*="link"],
+/* Stripe iframe específico para Link */
+iframe[name="__privateStripeFrame"],
+iframe[src*="link"],
+/* El botón específico que aparece */
+.p-LinkAutofillPrompt__button,
+.p-GridCell:has([class*="Link"]),
+/* Ocultar cualquier cosa con "Utilizar" en Stripe */
+[class*="cta"],
+[class*="prompt"],
+.InputContainer [class*="Button"],
+.__PrivateStripeElement div:has(button) {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  width: 0 !important;
+  max-width: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  clip: rect(0, 0, 0, 0) !important;
+  clip-path: inset(100%) !important;
+  z-index: -9999 !important;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --card-bg: #ffffff;
+  --card-border: #e5e7eb;
+  --input-bg: #ffffff;
+  --input-border: #e5e7eb;
+  --muted: #6b7280;
+  --muted-bg: #f9fafb;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: 'Poppins', Arial, sans-serif;
+  --font-mono: var(--font-geist-mono);
+}
+
+/* Dark theme via class (controlled by ThemeContext) */
+html.dark {
+  --background: #1a1d23;
+  --foreground: #f1f5f9;
+  --card-bg: #232830;
+  --card-border: #343b47;
+  --input-bg: #2a303c;
+  --input-border: #3e4654;
+  --muted: #94a3b8;
+  --muted-bg: #1e222a;
+  color-scheme: dark;
+}
+
+/* Base dark mode for html and body */
+html.dark,
+html.dark body {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+/* ============================================
+   DARK MODE OVERRIDES 
+   ============================================ */
+
+/* Buttons - improved for dark mode */
+html.dark button:not([class*="bg-gradient"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-green"]):not([class*="bg-amber"]):not([class*="bg-pink"]) {
+  color: var(--foreground);
+}
+
+html.dark .hover\:text-gray-900:hover,
+html.dark .hover\:text-gray-800:hover {
+  color: #f8fafc !important;
+}
+
+/* Primary buttons keep their gradients */
+html.dark button[class*="bg-gradient-to-r"][class*="from-blue"] {
+  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.35) !important;
+}
+
+html.dark button[class*="bg-gradient-to-r"][class*="from-blue"]:hover {
+  box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.45) !important;
+}
+
+/* Backgrounds */
+html.dark .bg-white {
+  background-color: var(--card-bg) !important;
+}
+
+html.dark .bg-gray-50,
+html.dark .bg-gray-100 {
+  background-color: var(--muted-bg) !important;
+}
+
+html.dark .bg-gray-200 {
+  background-color: #2d3442 !important;
+}
+
+html.dark .bg-gray-800,
+html.dark .bg-gray-900 {
+  background-color: #151820 !important;
+}
+
+/* Borders */
+html.dark .border-gray-100,
+html.dark .border-gray-200,
+html.dark .border-gray-300 {
+  border-color: var(--card-border) !important;
+}
+
+html.dark .divide-gray-100 > * + *,
+html.dark .divide-gray-200 > * + * {
+  border-color: var(--card-border) !important;
+}
+
+/* Text colors */
+html.dark .text-gray-900,
+html.dark .text-gray-800 {
+  color: var(--foreground) !important;
+}
+
+html.dark .text-gray-700,
+html.dark .text-gray-600,
+html.dark .text-gray-500 {
+  color: var(--muted) !important;
+}
+
+html.dark .text-gray-400,
+html.dark .text-gray-300 {
+  color: #64748b !important;
+}
+
+html.dark .text-black {
+  color: #f8fafc !important;
+}
+
+/* Form elements */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: var(--input-bg) !important;
+  border-color: var(--input-border) !important;
+  color: var(--foreground) !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: var(--muted) !important;
+}
+
+html.dark input:focus,
+html.dark textarea:focus,
+html.dark select:focus {
+  border-color: #3b82f6 !important;
+}
+
+/* Gradients */
+html.dark .bg-gradient-to-br,
+html.dark .bg-gradient-to-b,
+html.dark .bg-gradient-to-r {
+  --tw-gradient-from: #232830 !important;
+  --tw-gradient-to: #1a1d23 !important;
+}
+
+html.dark .from-gray-50,
+html.dark .from-white {
+  --tw-gradient-from: #232830 !important;
+}
+
+html.dark .to-gray-50,
+html.dark .to-white,
+html.dark .to-blue-50\/30 {
+  --tw-gradient-to: #1a1d23 !important;
+}
+
+html.dark .via-gray-50,
+html.dark .via-white {
+  --tw-gradient-via: #1e222a !important;
+}
+
+/* Shadows - softer in dark mode */
+html.dark .shadow-sm,
+html.dark .shadow,
+html.dark .shadow-md,
+html.dark .shadow-lg,
+html.dark .shadow-xl {
+  --tw-shadow-color: rgba(0, 0, 0, 0.25) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Hover states */
+html.dark .hover\:bg-gray-50:hover,
+html.dark .hover\:bg-gray-100:hover {
+  background-color: #2d3442 !important;
+}
+
+html.dark .hover\:bg-gray-200:hover {
+  background-color: #3a4252 !important;
+}
+
+html.dark .hover\:bg-white:hover {
+  background-color: #2d3442 !important;
+}
+
+/* Improved button hover colors */
+html.dark .hover\:bg-blue-50:hover {
+  background-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+html.dark .hover\:bg-amber-50:hover {
+  background-color: rgba(245, 158, 11, 0.2) !important;
+}
+
+html.dark .hover\:bg-red-50:hover {
+  background-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+html.dark .hover\:bg-green-50:hover {
+  background-color: rgba(34, 197, 94, 0.2) !important;
+}
+
+/* Icon button hover effects */
+html.dark .hover\:text-blue-600:hover {
+  color: #60a5fa !important;
+}
+
+html.dark .hover\:text-amber-600:hover {
+  color: #fbbf24 !important;
+}
+
+html.dark .hover\:text-red-500:hover {
+  color: #f87171 !important;
+}
+
+/* Backdrop blur elements (headers, modals) */
+html.dark .bg-white\/80,
+html.dark .bg-white\/90,
+html.dark .bg-white\/95 {
+  background-color: rgba(35, 40, 48, 0.95) !important;
+}
+
+html.dark .backdrop-blur-xl,
+html.dark .backdrop-blur-lg,
+html.dark .backdrop-blur-md {
+  backdrop-filter: blur(24px) !important;
+}
+
+/* Header specific dark mode */
+html.dark header {
+  background-color: rgba(35, 40, 48, 0.95) !important;
+  border-color: var(--card-border) !important;
+}
+
+html.dark .shadow-gray-200\/50 {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Cards and panels */
+html.dark [class*="rounded-"][class*="border"][class*="bg-white"] {
+  background-color: var(--card-bg) !important;
+  border-color: var(--card-border) !important;
+}
+
+/* Ring colors */
+html.dark .ring-gray-100,
+html.dark .ring-gray-200 {
+  --tw-ring-color: var(--card-border) !important;
+}
+
+/* Focus ring */
+html.dark .focus\:ring-blue-500:focus {
+  --tw-ring-color: #3b82f6 !important;
+}
+
+/* Specific component overrides */
+html.dark .bg-blue-50 {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+}
+
+html.dark .bg-green-50 {
+  background-color: rgba(34, 197, 94, 0.15) !important;
+}
+
+html.dark .bg-red-50 {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+}
+
+html.dark .bg-amber-50,
+html.dark .bg-yellow-50 {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+}
+
+html.dark .bg-purple-50 {
+  background-color: rgba(168, 85, 247, 0.15) !important;
+}
+
+html.dark .bg-indigo-50 {
+  background-color: rgba(99, 102, 241, 0.15) !important;
+}
+
+/* Border colors for colored borders */
+html.dark .border-blue-100 {
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+html.dark .border-green-100 {
+  border-color: rgba(34, 197, 94, 0.3) !important;
+}
+
+html.dark .border-red-100 {
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+/* Skeleton loading */
+html.dark .animate-pulse {
+  background-color: #27272a !important;
+}
+
+/* Scrollbar dark mode */
+html.dark ::-webkit-scrollbar-track {
+  background: #1e222a;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #3e4654;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #4a5568;
+}
+
+/* ============================================
+   ADDITIONAL DARK MODE OVERRIDES
+   ============================================ */
+
+/* Min-height screen backgrounds */
+html.dark .min-h-screen {
+  background-color: var(--background) !important;
+}
+
+/* Placeholder colors */
+html.dark .placeholder-gray-400::placeholder,
+html.dark .placeholder-gray-500::placeholder {
+  color: #71717a !important;
+}
+
+/* Text colors - more specific */
+html.dark .text-gray-800 {
+  color: #e4e4e7 !important;
+}
+
+/* Hover text colors */
+html.dark .hover\:text-gray-900:hover {
+  color: #fafafa !important;
+}
+
+html.dark .hover\:text-gray-800:hover {
+  color: #e4e4e7 !important;
+}
+
+/* Group hover states */
+html.dark .group:hover .group-hover\:bg-gray-50 {
+  background-color: #2d3442 !important;
+}
+
+html.dark .group:hover .group-hover\:text-gray-900 {
+  color: #f8fafc !important;
+}
+
+/* Focus states */
+html.dark .focus\:bg-white:focus {
+  background-color: var(--card-bg) !important;
+}
+
+html.dark .focus\:border-gray-300:focus {
+  border-color: #52525b !important;
+}
+
+/* Active states */
+html.dark .active\:bg-gray-100:active {
+  background-color: #3a4252 !important;
+}
+
+/* Disabled states */
+html.dark input:disabled,
+html.dark textarea:disabled,
+html.dark select:disabled,
+html.dark button:disabled {
+  background-color: #2a303c !important;
+  color: #64748b !important;
+}
+
+/* Category bar and search specific */
+html.dark .border-gray-200.group-focus-within\:border-purple-300,
+html.dark .border-gray-200.group-focus-within\:border-blue-300 {
+  border-color: var(--card-border) !important;
+}
+
+/* Backdrop and overlays */
+html.dark .bg-black\/50 {
+  background-color: rgba(15, 18, 23, 0.75) !important;
+}
+
+html.dark .bg-black\/60 {
+  background-color: rgba(15, 18, 23, 0.8) !important;
+}
+
+/* More gradient overrides */
+html.dark [class*="from-gray-50"],
+html.dark [class*="from-white"] {
+  --tw-gradient-from: #232830 !important;
+}
+
+html.dark [class*="to-gray-50"],
+html.dark [class*="to-white"] {
+  --tw-gradient-to: #1a1d23 !important;
+}
+
+html.dark [class*="via-gray-50"],
+html.dark [class*="via-white"] {
+  --tw-gradient-via: #1e222a !important;
+}
+
+html.dark [class*="to-blue-50"] {
+  --tw-gradient-to: rgba(59, 130, 246, 0.08) !important;
+}
+
+/* Card shadows in dark mode */
+html.dark .shadow-gray-200\/50 {
+  --tw-shadow-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Image containers */
+html.dark .bg-gray-100.rounded-xl,
+html.dark .bg-gray-50.rounded-xl,
+html.dark .bg-gray-100.rounded-2xl,
+html.dark .bg-gray-50.rounded-2xl {
+  background-color: #2d3442 !important;
+}
+
+/* Note: Removed global transition override as it conflicts with component-specific transitions */
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-variant-ligatures: common-ligatures;
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+/* Typography variables to keep styles consistent */
+:root {
+  --font-base-size: 16px;
+  --font-heading-weight: 600;
+  --font-body-weight: 400;
+  --font-small-weight: 500;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Animaciones para mensajes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeSlideDown {
+  from {
+    transform: translateY(-12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-fadeSlideDown {
+  animation: fadeSlideDown 220ms cubic-bezier(.16,.84,.33,1);
+}
+
+/* Staggered entrance support */
+.staggered > * {
+  opacity: 0;
+  transform: translateY(-6px);
+  animation-name: fadeSlideDown;
+  animation-duration: 260ms;
+  animation-fill-mode: forwards;
+  animation-timing-function: cubic-bezier(.16,.84,.33,1);
+}
+.staggered > *[style] {
+  /* allow inline --delay via style attribute */
+}
+
+/* Custom scrollbar styles */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #9333ea, #ec4899);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #7e22ce, #db2777);
+}
+
+/* Firefox scrollbar */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #9333ea #f1f1f1;
+}
+
+/* Shimmer animation for category grid */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) skewX(-12deg);
+  }
+  100% {
+    transform: translateX(200%) skewX(-12deg);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 3s infinite;
+}
+
+/* Scale hover effect */
+.hover\:scale-102:hover {
+  transform: scale(1.02);
+}
+
+/* ============================================
+   DISEÑO: ELEGANTE AZUL
+   Profesional con tonos azules corporativos
+   ============================================ */
+
+html.design-elegante-azul {
+  /* Variables de diseño */
+  --design-primary: #1e40af;
+  --design-primary-light: #3b82f6;
+  --design-accent: #0ea5e9;
+  --design-card-bg: #f8fafc;
+  --design-card-border: #e2e8f0;
+  --design-card-shadow: 0 4px 20px rgba(30, 64, 175, 0.08);
+  --design-radius: 1rem;
+}
+
+/* Elegante Azul - Cards */
+html.design-elegante-azul .design-card {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%) !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 4px 20px rgba(30, 64, 175, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  overflow: hidden;
+}
+
+html.design-elegante-azul .design-card:hover {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 12px 40px rgba(30, 64, 175, 0.12), 0 4px 6px rgba(0, 0, 0, 0.05) !important;
+  transform: translateY(-4px);
+}
+
+/* Elegante Azul - Badge VIP */
+html.design-elegante-azul .design-badge-vip {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* Elegante Azul - Badge Premium */
+html.design-elegante-azul .design-badge-premium {
+  background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%) !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+/* Elegante Azul - Badge Destacado */
+html.design-elegante-azul .design-badge-destacado {
+  background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%) !important;
+  color: white !important;
+  font-weight: 500 !important;
+}
+
+/* Elegante Azul - Precio */
+html.design-elegante-azul .design-price {
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important;
+  color: white !important;
+  font-weight: 700 !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 0.5rem !important;
+}
+
+/* Elegante Azul - Categorías */
+html.design-elegante-azul .design-category {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
+  border: 1px solid #bae6fd !important;
+  color: #0369a1 !important;
+  border-radius: 0.75rem !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+}
+
+html.design-elegante-azul .design-category:hover {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
+  color: white !important;
+  border-color: transparent !important;
+  transform: scale(1.05);
+}
+
+html.design-elegante-azul .design-category.active {
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important;
+  color: white !important;
+  border-color: transparent !important;
+}
+
+/* Elegante Azul - Header destacado */
+html.design-elegante-azul .design-section-header {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%) !important;
+  color: white !important;
+  border-radius: 1rem !important;
+  padding: 1.5rem !important;
+}
+
+/* Elegante Azul - Botones */
+html.design-elegante-azul .design-button-primary {
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important;
+  color: white !important;
+  border-radius: 0.75rem !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+}
+
+html.design-elegante-azul .design-button-primary:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(30, 64, 175, 0.25) !important;
+}
+
+/* Elegante Azul - Imagen con overlay */
+html.design-elegante-azul .design-card .design-image-wrapper {
+  position: relative;
+}
+
+html.design-elegante-azul .design-card .design-image-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(30, 64, 175, 0.1) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+html.design-elegante-azul .design-card:hover .design-image-wrapper::after {
+  opacity: 1;
+}
+
+/* ============================================
+   DISEÑO: MINIMALISTA NOIR
+   Sofisticado en blanco, gris y negro
+   ============================================ */
+
+html.design-minimalista-noir {
+  /* Variables de diseño */
+  --design-primary: #18181b;
+  --design-primary-light: #3f3f46;
+  --design-accent: #a1a1aa;
+  --design-card-bg: #fafafa;
+  --design-card-border: #e4e4e7;
+  --design-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --design-radius: 0.5rem;
+}
+
+/* Minimalista Noir - Cards */
+html.design-minimalista-noir .design-card {
+  background: #ffffff !important;
+  border: 1px solid #e4e4e7 !important;
+  border-radius: 0.375rem !important;
+  box-shadow: none !important;
+  transition: all 0.25s ease !important;
+  overflow: hidden;
+}
+
+html.design-minimalista-noir .design-card:hover {
+  border-color: #18181b !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Minimalista Noir - Badge VIP */
+html.design-minimalista-noir .design-badge-vip {
+  background: #18181b !important;
+  color: white !important;
+  font-weight: 500 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  font-size: 0.65rem !important;
+}
+
+/* Minimalista Noir - Badge Premium */
+html.design-minimalista-noir .design-badge-premium {
+  background: #3f3f46 !important;
+  color: white !important;
+  font-weight: 500 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  font-size: 0.65rem !important;
+}
+
+/* Minimalista Noir - Badge Destacado */
+html.design-minimalista-noir .design-badge-destacado {
+  background: #71717a !important;
+  color: white !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+  font-size: 0.65rem !important;
+}
+
+/* Minimalista Noir - Precio */
+html.design-minimalista-noir .design-price {
+  background: transparent !important;
+  color: #18181b !important;
+  font-weight: 700 !important;
+  font-size: 1.25rem !important;
+  border-bottom: 2px solid #18181b !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* Minimalista Noir - Categorías */
+html.design-minimalista-noir .design-category {
+  background: transparent !important;
+  border: 1px solid #d4d4d8 !important;
+  color: #3f3f46 !important;
+  border-radius: 0 !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
+  transition: all 0.2s ease !important;
+}
+
+html.design-minimalista-noir .design-category:hover {
+  background: #18181b !important;
+  color: white !important;
+  border-color: #18181b !important;
+}
+
+html.design-minimalista-noir .design-category.active {
+  background: #18181b !important;
+  color: white !important;
+  border-color: #18181b !important;
+}
+
+/* Minimalista Noir - Header destacado */
+html.design-minimalista-noir .design-section-header {
+  background: transparent !important;
+  color: #18181b !important;
+  border-bottom: 2px solid #18181b !important;
+  border-radius: 0 !important;
+  padding: 0 0 1rem 0 !important;
+  margin-bottom: 2rem !important;
+}
+
+/* Minimalista Noir - Botones */
+html.design-minimalista-noir .design-button-primary {
+  background: #18181b !important;
+  color: white !important;
+  border-radius: 0 !important;
+  font-weight: 500 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  transition: all 0.2s ease !important;
+}
+
+html.design-minimalista-noir .design-button-primary:hover {
+  background: #3f3f46 !important;
+}
+
+/* Minimalista Noir - Imagen */
+html.design-minimalista-noir .design-card .design-image-wrapper {
+  position: relative;
+}
+
+html.design-minimalista-noir .design-card .design-image-wrapper img {
+  filter: grayscale(15%);
+  transition: filter 0.3s ease;
+}
+
+html.design-minimalista-noir .design-card:hover .design-image-wrapper img {
+  filter: grayscale(0%);
+}
+
+/* Minimalista Noir - Favorito */
+html.design-minimalista-noir .design-favorite-btn {
+  background: transparent !important;
+  border: 1px solid #e4e4e7 !important;
+}
+
+html.design-minimalista-noir .design-favorite-btn:hover {
+  background: #18181b !important;
+  border-color: #18181b !important;
+  color: white !important;
+}
+
+/* ============================================
+   DISEÑO: CLÁSICO PROFESIONAL
+   Elegancia atemporal con acabados premium dorados
+   ============================================ */
+
+html.design-clasico-profesional {
+  --design-primary: #78350f;
+  --design-primary-light: #d97706;
+  --design-accent: #fbbf24;
+  --design-card-bg: #fffbeb;
+  --design-card-border: #fde68a;
+  --design-card-shadow: 0 4px 25px rgba(217, 119, 6, 0.15);
+  --design-radius: 0.75rem;
+}
+
+html.design-clasico-profesional .design-card {
+  background: linear-gradient(to bottom, #fffbeb, #fef3c7) !important;
+  border: 2px solid #fde68a !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 4px 25px rgba(217, 119, 6, 0.12) !important;
+}
+
+html.design-clasico-profesional .design-card:hover {
+  border-color: #f59e0b !important;
+  box-shadow: 0 8px 40px rgba(217, 119, 6, 0.25) !important;
+  transform: translateY(-4px);
+}
+
+html.design-clasico-profesional .design-badge-vip {
+  background: linear-gradient(135deg, #78350f 0%, #d97706 100%) !important;
+  color: white !important;
+  border-radius: 9999px !important;
+  padding: 0.375rem 1rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.025em !important;
+  box-shadow: 0 4px 12px rgba(120, 53, 15, 0.3) !important;
+}
+
+html.design-clasico-profesional .design-badge-premium {
+  background: linear-gradient(135deg, #d97706 0%, #fbbf24 100%) !important;
+  color: #78350f !important;
+  border-radius: 9999px !important;
+  padding: 0.375rem 1rem !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25) !important;
+}
+
+html.design-clasico-profesional .design-badge-destacado {
+  background: linear-gradient(135deg, #fbbf24 0%, #fef3c7 100%) !important;
+  color: #92400e !important;
+  border-radius: 9999px !important;
+  padding: 0.375rem 1rem !important;
+  font-weight: 500 !important;
+}
+
+html.design-clasico-profesional .design-price {
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%) !important;
+  color: white !important;
+  border-radius: 0.5rem !important;
+  padding: 0.5rem 1rem !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.2) !important;
+}
+
+html.design-clasico-profesional .design-category {
+  background: linear-gradient(to right, #fffbeb, #fef3c7) !important;
+  border: 1px solid #fde68a !important;
+  border-radius: 0.5rem !important;
+  color: #92400e !important;
+  padding: 0.5rem 1.25rem !important;
+  font-weight: 500 !important;
+}
+
+html.design-clasico-profesional .design-category:hover {
+  background: linear-gradient(to right, #fef3c7, #fde68a) !important;
+  border-color: #f59e0b !important;
+  transform: translateY(-2px);
+}
+
+html.design-clasico-profesional .design-category.active {
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%) !important;
+  border-color: #b45309 !important;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3) !important;
+}
+
+html.design-clasico-profesional .design-section-header {
+  background: linear-gradient(135deg, #78350f 0%, #b45309 50%, #d97706 100%) !important;
+  border-radius: 0.75rem !important;
+  padding: 1.5rem !important;
+  box-shadow: 0 8px 30px rgba(120, 53, 15, 0.25) !important;
+  border: 1px solid rgba(251, 191, 36, 0.3) !important;
+}
+
+html.design-clasico-profesional .design-button-primary {
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%) !important;
+  color: white !important;
+  border-radius: 0.5rem !important;
+  padding: 0.75rem 1.5rem !important;
+  font-weight: 600 !important;
+  border: none !important;
+  box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3) !important;
+}
+
+html.design-clasico-profesional .design-button-primary:hover {
+  background: linear-gradient(135deg, #b45309 0%, #d97706 100%) !important;
+  box-shadow: 0 6px 20px rgba(217, 119, 6, 0.4) !important;
+  transform: translateY(-2px);
+}
+
+html.design-clasico-profesional .design-card .design-image-wrapper {
+  border-radius: 0.5rem 0.5rem 0 0 !important;
+  overflow: hidden !important;
+}
+
+html.design-clasico-profesional .design-card .design-image-wrapper img {
+  transition: transform 0.5s ease, filter 0.5s ease !important;
+}
+
+html.design-clasico-profesional .design-card:hover .design-image-wrapper img {
+  transform: scale(1.05) !important;
+}
+
+html.design-clasico-profesional .design-favorite-btn {
+  background: white !important;
+  border: 2px solid #fde68a !important;
+  border-radius: 9999px !important;
+  color: #d97706 !important;
+}
+
+html.design-clasico-profesional .design-favorite-btn:hover {
+  background: #d97706 !important;
+  border-color: #d97706 !important;
+  color: white !important;
+}
+
+html.design-clasico-profesional .design-favorite-btn.active {
+  background: linear-gradient(135deg, #f43f5e 0%, #ec4899 100%) !important;
+  border-color: #f43f5e !important;
+  color: white !important;
+}
+
+/* ============================================
+   ESTILOS COMPARTIDOS PARA DISEÑOS
+   ============================================ */
+
+/* Transiciones suaves entre diseños */
+.design-card,
+.design-category,
+.design-badge-vip,
+.design-badge-premium,
+.design-badge-destacado,
+.design-price,
+.design-button-primary {
+  transition: all 0.3s ease;
+}
+
+/* Asegurar que el diseño default no tenga clases especiales activas */
+html.design-default .design-card {
+  /* Mantener estilos originales */
+}
+

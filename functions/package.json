@@ -1,0 +1,21 @@
+{
+  "name": "nuevo-functions",
+  "description": "Firebase Cloud Functions for Nuevo (mensajes counters)",
+  "private": true,
+  "engines": {
+    "node": "18"
+  },
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "deploy": "npm run build && firebase deploy --only functions:onMessageCreate"
+  },
+  "dependencies": {
+    "firebase-admin": "^11.10.0",
+    "firebase-functions": "^4.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.1.6",
+    "@types/node": "^18.16.19"
+  }
+}

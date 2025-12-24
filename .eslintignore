@@ -1,0 +1,5 @@
+# Ignore compiled functions
+/functions/lib
+/node_modules
+.next
+.env.local

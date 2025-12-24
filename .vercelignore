@@ -1,0 +1,7 @@
+# Ignorar carpeta de Firebase Functions
+functions/
+
+# Archivos de configuración que no son necesarios
+*.swift
+*.md
+!README.md
