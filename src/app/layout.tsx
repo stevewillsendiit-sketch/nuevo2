@@ -211,12 +211,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Google AdSense - cargado después de la hidratación */}
         <Script
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3745938390712923"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           crossOrigin="anonymous"
         />
-        <Providers>
-          {children}
-        </Providers>
+        <div id="app-root" suppressHydrationWarning>
+          <Providers>
+            {children}
+          </Providers>
+        </div>
       </body>
     </html>
   );

@@ -21,12 +21,6 @@ interface ProvidersProps {
 }
 
 export default function Providers({ children }: ProvidersProps) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   return (
     <ThemeProvider>
       <DesignProvider>
@@ -34,12 +28,8 @@ export default function Providers({ children }: ProvidersProps) {
           <AuthProvider>
             <FavoritosProvider>
               <ClientCategoryProvider>
-                {mounted && (
-                  <>
-                    <AnalyticsTracker />
-                    <MessageNotification />
-                  </>
-                )}
+                <AnalyticsTracker />
+                <MessageNotification />
                 <Header />
                 <GlobalCategoryBar />
                 <main className="flex-1">{children}</main>
