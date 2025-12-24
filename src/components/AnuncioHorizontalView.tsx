@@ -3,7 +3,7 @@
 import { Anuncio, EstadoAnuncio } from '@/types';
 import { getCategoriaIcon } from '@/lib/categoriaIcons';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaEye, FaHeart, FaTrash, FaStar, FaEdit, FaBullhorn, FaEnvelope } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 
@@ -21,18 +21,22 @@ interface AnuncioHorizontalViewProps {
 
 export default function AnuncioHorizontalView({ anuncio, compact = false, onDelete, onEdit, onDestacar, onPromote, onToggleActivo, showActionsBar }: AnuncioHorizontalViewProps) {
   const [imageError, setImageError] = useState(false);
+  const [diasRestantes, setDiasRestantes] = useState(30);
   const router = useRouter();
   // Elegante y profesional para panel usuario
   // Vista elegante para panel usuario o normal (inicio, etc)
   const esActivo = anuncio.estado === EstadoAnuncio.ACTIVO;
-  // Calcular días restantes (30 días desde fechaPublicacion)
-  let diasRestantes = 30;
-  if (anuncio.fechaPublicacion) {
-    const fechaPub = new Date(anuncio.fechaPublicacion);
-    const ahora = new Date();
-    const diff = Math.max(0, 30 - Math.floor((ahora.getTime() - fechaPub.getTime()) / (1000 * 60 * 60 * 24)));
-    diasRestantes = diff;
-  }
+  
+  // Calcular días restantes solo en cliente (30 días desde fechaPublicacion)
+  useEffect(() => {
+    if (anuncio.fechaPublicacion) {
+      const fechaPub = new Date(anuncio.fechaPublicacion);
+      const ahora = new Date();
+      const diff = Math.max(0, 30 - Math.floor((ahora.getTime() - fechaPub.getTime()) / (1000 * 60 * 60 * 24)));
+      setDiasRestantes(diff);
+    }
+  }, [anuncio.fechaPublicacion]);
+  
   return (
     showActionsBar ? (
       <div className="bg-white rounded-xl shadow-md border border-gray-100 mb-3 overflow-hidden group hover:shadow-lg transition-shadow">
