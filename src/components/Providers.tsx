@@ -9,7 +9,7 @@ import { DesignProvider } from '@/contexts/DesignContext';
 import { FavoritosProvider } from '@/contexts/FavoritosContext';
 import ClientCategoryProvider from '@/components/ClientCategoryProvider';
 
-// Importar componentes dinámicamente sin SSR para evitar hidratación
+// Importar componentes dinámicamente sin SSR
 const Header = dynamic(() => import('@/components/Header'), { ssr: false });
 const GlobalCategoryBar = dynamic(() => import('@/components/GlobalCategoryBar'), { ssr: false });
 const Footer = dynamic(() => import('@/components/Footer'), { ssr: false });
@@ -27,21 +27,30 @@ export default function Providers({ children }: ProvidersProps) {
     setMounted(true);
   }, []);
 
-  // Contenido base que se renderiza tanto en servidor como en cliente
-  const content = (
+  // En el servidor, renderizar estructura mínima sin providers que acceden a browser APIs
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <main className="flex-1">{children}</main>
+      </div>
+    );
+  }
+
+  // En el cliente, renderizar todo con los providers
+  return (
     <ThemeProvider>
       <DesignProvider>
         <LanguageProvider>
           <AuthProvider>
             <FavoritosProvider>
               <ClientCategoryProvider>
-                <div className="min-h-screen flex flex-col" suppressHydrationWarning>
-                  {mounted && <AnalyticsTracker />}
-                  {mounted && <MessageNotification />}
-                  {mounted && <Header />}
-                  {mounted && <GlobalCategoryBar />}
-                  <main className="flex-1" suppressHydrationWarning>{children}</main>
-                  {mounted && <Footer />}
+                <div className="min-h-screen flex flex-col">
+                  <AnalyticsTracker />
+                  <MessageNotification />
+                  <Header />
+                  <GlobalCategoryBar />
+                  <main className="flex-1">{children}</main>
+                  <Footer />
                 </div>
               </ClientCategoryProvider>
             </FavoritosProvider>
@@ -50,7 +59,4 @@ export default function Providers({ children }: ProvidersProps) {
       </DesignProvider>
     </ThemeProvider>
   );
-
-  return content;
 }
-// Rebuild 1766610741
