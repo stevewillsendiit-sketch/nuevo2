@@ -212,12 +212,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {/* Google AdSense - Verificación */}
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3745938390712923"
-          crossOrigin="anonymous"
-        />
         {/* Preconnect a servicios externos para cargar más rápido */}
         <link rel="preconnect" href="https://firebasestorage.googleapis.com" />
         <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com" />
@@ -225,6 +219,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className={poppins.className} suppressHydrationWarning>
+        {/* Google AdSense - cargado después de la hidratación */}
+        <Script
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3745938390712923"
+          strategy="afterInteractive"
+          crossOrigin="anonymous"
+        />
         <ThemeProvider>
           <DesignProvider>
             <LanguageProvider>
