@@ -109,11 +109,29 @@ export default function Header() {
               className="flex items-center gap-3 cursor-pointer group flex-shrink-0" 
               onClick={() => router.push('/')}
             >
-              {/* Logo minimalista */}
-              <div className={`w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center transition-all duration-300 ${
-                isScrolled ? 'scale-95' : 'scale-100'
-              } group-hover:scale-105`}>
-                <Rocket className="text-white w-5 h-5" />
+              {/* Logo minimalista con gorro de Navidad */}
+              <div className="relative">
+                {/* Gorro de Navidad SVG 🎄 */}
+                <svg 
+                  className="absolute -top-4 -left-1 z-10 w-8 h-8 transform -rotate-12 drop-shadow-md" 
+                  viewBox="0 0 64 64"
+                >
+                  {/* Gorro rojo */}
+                  <path d="M8 40 Q20 5 50 35 L32 42 Z" fill="#dc2626" />
+                  <path d="M8 40 Q20 8 48 33 L32 40 Z" fill="#ef4444" />
+                  {/* Borde blanco del gorro */}
+                  <ellipse cx="24" cy="42" rx="18" ry="6" fill="#fafafa" />
+                  <ellipse cx="24" cy="42" rx="18" ry="4" fill="#f5f5f5" />
+                  {/* Pompón */}
+                  <circle cx="52" cy="32" r="7" fill="#fafafa" />
+                  <circle cx="52" cy="32" r="5" fill="#f5f5f5" />
+                  <circle cx="50" cy="30" r="2" fill="#ffffff" />
+                </svg>
+                <div className={`w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                  isScrolled ? 'scale-95' : 'scale-100'
+                } group-hover:scale-105`}>
+                  <Rocket className="text-white w-5 h-5" />
+                </div>
               </div>
               
               {/* Brand Name - Tipografía limpia */}
