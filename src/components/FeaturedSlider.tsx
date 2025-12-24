@@ -52,11 +52,13 @@ export default function FeaturedSlider({ limit = 10, source = 'vip-premium' }: {
           });
         } catch (e) {
           console.error('Error cargando promociones de Firestore en slider:', e);
-          // Fallback a localStorage
-          const promocionesGuardadas = localStorage.getItem('promocionesActivas');
-          if (promocionesGuardadas) {
-            promocionesActivas = JSON.parse(promocionesGuardadas);
-            promocionesActivas = promocionesActivas.filter((p: any) => p.diasRestantes > 0);
+          // Fallback a localStorage - solo en cliente
+          if (typeof window !== 'undefined') {
+            const promocionesGuardadas = localStorage.getItem('promocionesActivas');
+            if (promocionesGuardadas) {
+              promocionesActivas = JSON.parse(promocionesGuardadas);
+              promocionesActivas = promocionesActivas.filter((p: any) => p.diasRestantes > 0);
+            }
           }
         }
         

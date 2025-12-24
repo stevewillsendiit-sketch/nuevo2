@@ -19,8 +19,8 @@ export default function FeaturedCarousel({ limit = 6 }: { limit?: number }) {
         setLoading(true);
         const res = await getFeaturedAnuncios(limit);
         
-        // Obtener promociones Premium y VIP del localStorage
-        const promocionesGuardadas = localStorage.getItem('promocionesActivas');
+        // Obtener promociones Premium y VIP del localStorage - solo en cliente
+        const promocionesGuardadas = typeof window !== 'undefined' ? localStorage.getItem('promocionesActivas') : null;
         let anunciosPromocionados: Anuncio[] = [];
         
         if (promocionesGuardadas) {
