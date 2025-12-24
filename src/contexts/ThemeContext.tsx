@@ -17,18 +17,19 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
   const [mounted, setMounted] = useState(false);
 
-  // Cargar tema guardado al montar
+  // Marcar como montado ANTES de leer localStorage para evitar hidratación
   useEffect(() => {
-    setMounted(true);
-    const savedTheme = localStorage.getItem('theme') as Theme | null;
+    // Leer tema guardado - por defecto light si no hay preferencia
+    const savedTheme = typeof window !== 'undefined' ? localStorage.getItem('theme') as Theme | null : null;
     if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
       setThemeState(savedTheme);
     }
+    setMounted(true);
   }, []);
 
   // Resolver tema del sistema
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || !mounted) return;
     
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     
@@ -45,11 +46,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     // Escuchar cambios en preferencia del sistema
     mediaQuery.addEventListener('change', updateResolvedTheme);
     return () => mediaQuery.removeEventListener('change', updateResolvedTheme);
-  }, [theme]);
+  }, [theme, mounted]);
 
-  // Aplicar tema al documento
+  // Aplicar tema al documento SOLO después de montaje completo
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || typeof window === 'undefined') return;
     
     const root = document.documentElement;
     
@@ -66,17 +67,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem('theme', newTheme);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('theme', newTheme);
+    }
   };
-
-  // Prevenir flash de tema incorrecto
-  if (!mounted) {
-    return (
-      <ThemeContext.Provider value={{ theme: 'light', setTheme: () => {}, resolvedTheme: 'light' }}>
-        {children}
-      </ThemeContext.Provider>
-    );
-  }
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme, resolvedTheme }}>

@@ -84,7 +84,7 @@ export function DesignProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || typeof window === 'undefined') return;
     
     const root = document.documentElement;
     
