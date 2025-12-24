@@ -49,13 +49,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [theme, mounted]);
 
   // Aplicar tema al documento SOLO después de montaje completo
+  // El script inline en layout.tsx ya aplicó el tema inicial
   useEffect(() => {
     if (!mounted || typeof window === 'undefined') return;
     
     const root = document.documentElement;
     
+    // Solo actualizar si el tema cambió después del montaje inicial
     if (resolvedTheme === 'dark') {
-      root.classList.add('dark');
+      if (!root.classList.contains('dark')) {
+        root.classList.add('dark');
+      }
       root.style.setProperty('--background', '#1a1d23');
       root.style.setProperty('--foreground', '#f1f5f9');
     } else {

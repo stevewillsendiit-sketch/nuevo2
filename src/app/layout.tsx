@@ -192,10 +192,37 @@ const jsonLd = {
   ],
 };
 
+// Script que se ejecuta ANTES de React para evitar flash y errores de hidratación
+const themeInitScript = `
+(function() {
+  try {
+    var theme = localStorage.getItem('theme') || 'light';
+    var design = localStorage.getItem('designStyle') || 'default';
+    var root = document.documentElement;
+    
+    // Aplicar tema
+    if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      root.classList.add('dark');
+      root.style.setProperty('--background', '#1a1d23');
+      root.style.setProperty('--foreground', '#f1f5f9');
+    } else {
+      root.classList.remove('dark');
+      root.style.setProperty('--background', '#ffffff');
+      root.style.setProperty('--foreground', '#171717');
+    }
+    
+    // Aplicar diseño
+    root.classList.add('design-' + design);
+  } catch (e) {}
+})();
+`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ro" suppressHydrationWarning>
       <head>
+        {/* Script de inicialización de tema - ANTES de React */}
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         {/* Schema.org JSON-LD para SEO */}
         <script
           type="application/ld+json"
