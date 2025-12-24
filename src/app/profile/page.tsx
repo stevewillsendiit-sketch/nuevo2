@@ -1382,7 +1382,7 @@ export default function ProfilePage() {
 
       {/* Sidebar - Hidden on mobile, slides in when menu open */}
       <aside className={`
-        fixed lg:sticky top-0 left-0 h-screen z-50
+        fixed lg:sticky top-20 lg:top-0 left-0 h-[calc(100vh-80px)] lg:h-screen z-40
         w-[280px] sm:w-72 bg-white border-r border-gray-200 
         flex flex-col py-6 px-4 shadow-lg lg:shadow-sm
         transform transition-transform duration-300 ease-in-out overflow-hidden
