@@ -1546,31 +1546,7 @@ export default function ProfilePage() {
                   );
                 })()}
               </div>
-            ) : (
-              <div className="mt-4 w-full">
-                {/* Diseño elegante para Sin plan activo */}
-                <div className="relative group cursor-pointer" onClick={() => handleTabChange('promociones')}>
-                  {/* Fondo con patrón */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-50 rounded-2xl opacity-80"></div>
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-[length:8px_8px] rounded-2xl"></div>
-                  
-                  <div className="relative px-4 py-3 rounded-2xl border-2 border-dashed border-gray-200 hover:border-gray-300 transition-all">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl flex items-center justify-center">
-                        <Rocket className="text-gray-500" size={18} />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-gray-700">{t('profile.noPlan')}</p>
-                        <p className="text-[10px] text-gray-500">{t('profile.clickForPlans')}</p>
-                      </div>
-                      <div className="text-gray-400 group-hover:translate-x-1 transition-transform">
-                        →
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+            ) : null}
           </div>
 
           {/* Mobile Close Button */}
