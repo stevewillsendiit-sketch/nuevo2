@@ -6441,6 +6441,9 @@ export default function ProfilePage() {
         onClose={() => setShowVerificationModal(false)}
         onVerified={() => {
           toastSuccess('Verificare reușită!', 'Contul tău este acum mai sigur.');
+          setShowVerificationModal(false);
+          // Recargar la página para actualizar el estado de verificación
+          window.location.reload();
         }}
       />
 
