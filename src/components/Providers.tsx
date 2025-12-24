@@ -27,40 +27,22 @@ export default function Providers({ children }: ProvidersProps) {
     setMounted(true);
   }, []);
 
-  // Renderizar solo el contenido básico durante SSR para evitar hidratación
-  if (!mounted) {
-    return (
-      <ThemeProvider>
-        <DesignProvider>
-          <LanguageProvider>
-            <AuthProvider>
-              <FavoritosProvider>
-                <ClientCategoryProvider>
-                  <div className="min-h-screen flex flex-col">
-                    <main className="flex-1">{children}</main>
-                  </div>
-                </ClientCategoryProvider>
-              </FavoritosProvider>
-            </AuthProvider>
-          </LanguageProvider>
-        </DesignProvider>
-      </ThemeProvider>
-    );
-  }
-
-  return (
+  // Contenido base que se renderiza tanto en servidor como en cliente
+  const content = (
     <ThemeProvider>
       <DesignProvider>
         <LanguageProvider>
           <AuthProvider>
             <FavoritosProvider>
               <ClientCategoryProvider>
-                <AnalyticsTracker />
-                <MessageNotification />
-                <Header />
-                <GlobalCategoryBar />
-                <main className="flex-1">{children}</main>
-                <Footer />
+                <div className="min-h-screen flex flex-col" suppressHydrationWarning>
+                  {mounted && <AnalyticsTracker />}
+                  {mounted && <MessageNotification />}
+                  {mounted && <Header />}
+                  {mounted && <GlobalCategoryBar />}
+                  <main className="flex-1" suppressHydrationWarning>{children}</main>
+                  {mounted && <Footer />}
+                </div>
               </ClientCategoryProvider>
             </FavoritosProvider>
           </AuthProvider>
@@ -68,4 +50,6 @@ export default function Providers({ children }: ProvidersProps) {
       </DesignProvider>
     </ThemeProvider>
   );
+
+  return content;
 }
