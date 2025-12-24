@@ -2,18 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { LanguageProvider } from "@/contexts/LanguageContext";
-import { ThemeProvider } from "@/contexts/ThemeContext";
-import { DesignProvider } from "@/contexts/DesignContext";
-import Header from '@/components/Header';
-import GlobalCategoryBar from '@/components/GlobalCategoryBar';
-import ClientCategoryProvider from '@/components/ClientCategoryProvider';
-import Footer from '@/components/Footer';
-import { FavoritosProvider } from '@/contexts/FavoritosContext';
-import AnalyticsTracker from '@/components/AnalyticsTracker';
-import MessageNotification from '@/components/MessageNotification';
-// CustomTabBar removed — no import required
+import Providers from "@/components/Providers";
 
 const poppins = Poppins({ 
   subsets: ["latin"],
@@ -225,24 +214,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           strategy="afterInteractive"
           crossOrigin="anonymous"
         />
-        <ThemeProvider>
-          <DesignProvider>
-            <LanguageProvider>
-              <AuthProvider>
-                <FavoritosProvider>
-                  <ClientCategoryProvider>
-                    <AnalyticsTracker />
-                    <MessageNotification />
-                    <Header />
-                    <GlobalCategoryBar />
-                    {children}
-                    <Footer />
-                  </ClientCategoryProvider>
-                </FavoritosProvider>
-              </AuthProvider>
-            </LanguageProvider>
-          </DesignProvider>
-        </ThemeProvider>
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );
