@@ -108,6 +108,8 @@ export interface Usuario {
   empresaVerificada?: boolean;
   // Campos adicionales
   avatar?: string;
+  fotoUrl?: string;
+  fotoActualizada?: Date;
   plan?: string;
   creditos?: number;
 }
