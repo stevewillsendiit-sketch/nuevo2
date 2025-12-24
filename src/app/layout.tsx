@@ -214,7 +214,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           strategy="lazyOnload"
           crossOrigin="anonymous"
         />
-        <div id="app-root" suppressHydrationWarning>
+        <div id="__next" suppressHydrationWarning>
           <Providers>
             {children}
           </Providers>
