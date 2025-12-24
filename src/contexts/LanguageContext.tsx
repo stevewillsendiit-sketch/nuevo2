@@ -1471,7 +1471,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     // Cargar idioma guardado - por defecto rumano
     if (typeof window !== 'undefined') {
       const savedLang = localStorage.getItem('vindel_language') as Language;
@@ -1482,14 +1481,19 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('vindel_language', 'ro');
       }
     }
+    setMounted(true);
   }, []);
+
+  // Aplicar idioma al documento SOLO después de montaje completo
+  useEffect(() => {
+    if (!mounted || typeof window === 'undefined') return;
+    document.documentElement.lang = language;
+  }, [language, mounted]);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     if (typeof window !== 'undefined') {
       localStorage.setItem('vindel_language', lang);
-      // Actualizar el atributo lang del HTML
-      document.documentElement.lang = lang;
     }
   };
 
