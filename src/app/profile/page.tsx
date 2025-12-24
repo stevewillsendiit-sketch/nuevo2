@@ -4900,7 +4900,7 @@ export default function ProfilePage() {
               )}
             </div>
           ) : activeTab === 'bonificaciones' ? (
-            /* Bonificaciones Tab */
+            /* Bonificaciones Tab - Simplificado */
             <div className="space-y-6">
               {/* Header */}
               <div className="bg-gradient-to-br from-emerald-600 via-green-500 to-teal-600 rounded-2xl p-6 relative overflow-hidden">
@@ -4935,338 +4935,36 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* 🎁 SECCIÓN DE CRÉDITOS DIARIOS */}
-              <div className={`bg-gradient-to-br from-amber-500 via-orange-500 to-yellow-500 rounded-2xl p-6 relative overflow-hidden shadow-lg transition-all duration-500 ${mostrarAnimacionCreditos ? 'scale-105' : ''}`}>
-                {/* Animación de brillo */}
-                <div className="absolute inset-0 overflow-hidden">
-                  <div className="absolute -top-20 -right-20 w-40 h-40 bg-white/30 rounded-full blur-3xl animate-pulse"></div>
-                  <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-yellow-300/40 rounded-full blur-2xl"></div>
-                  {mostrarAnimacionCreditos && (
-                    <div className="absolute inset-0 bg-white/30 animate-ping"></div>
-                  )}
+              {/* Tu Saldo de Créditos */}
+              <div className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-2xl p-6 relative overflow-hidden">
+                <div className="absolute inset-0 opacity-20">
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full blur-3xl"></div>
                 </div>
-                
-                <div className="relative">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    {/* Info de puntos */}
-                    <div className="flex items-center gap-4">
-                      <div className={`w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center transition-transform ${puedeReclamar ? 'animate-bounce' : ''}`}>
-                        <span className="text-3xl">💰</span>
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                          Puntos Diarios
-                          {puedeReclamar && (
-                            <span className="px-2 py-0.5 bg-white/30 text-white text-xs font-bold rounded-full animate-pulse">
-                              ¡DISPONIBLE!
-                            </span>
-                          )}
-                        </h3>
-                        <p className="text-amber-100 text-sm">
-                          {puedeReclamar 
-                            ? `¡Reclama ${configCreditos.creditosPorDia} puntos gratis hoy!`
-                            : `Vuelve en ${horasParaReclamar}h para reclamar más`
-                          }
-                        </p>
-                      </div>
+                <div className="relative flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                      <Euro className="text-white" size={28} />
                     </div>
-                    
-                    {/* Saldo actual */}
-                    <div className="flex items-center gap-4">
-                      <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-3 text-center min-w-[120px]">
-                        <p className="text-amber-100 text-xs mb-1">Tu saldo</p>
-                        <div className="flex items-center justify-center gap-1">
-                          <span className="text-3xl">🪙</span>
-                          <span className="text-3xl font-black text-white">
-                            {loadingCreditos ? '...' : (creditosUsuario?.saldo || 0)}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {/* Botón reclamar */}
-                      <button
-                        onClick={async () => {
-                          if (!user?.uid || !puedeReclamar || reclamandoCreditos) return;
-                          
-                          setReclamandoCreditos(true);
-                          try {
-                            const resultado = await reclamarCreditosDiarios(user.uid, configCreditos.creditosPorDia);
-                            
-                            if (resultado.success) {
-                              setMostrarAnimacionCreditos(true);
-                              setTimeout(() => setMostrarAnimacionCreditos(false), 1000);
-                              
-                              setCreditosUsuario(prev => prev ? {
-                                ...prev,
-                                saldo: resultado.nuevoSaldo || prev.saldo + configCreditos.creditosPorDia
-                              } : {
-                                usuarioId: user.uid,
-                                saldo: resultado.nuevoSaldo || configCreditos.creditosPorDia,
-                                ultimoReclamo: new Date(),
-                                totalReclamado: configCreditos.creditosPorDia,
-                                historialReclamos: []
-                              });
-                              
-                              setPuedeReclamar(false);
-                              setHorasParaReclamar(24);
-                              
-                              toastPoints('¡Puntos Reclamados!', `${resultado.mensaje} • Nuevo saldo: ${resultado.nuevoSaldo} puntos`);
-                            } else {
-                              toastError('No disponible', resultado.mensaje);
-                            }
-                          } catch (error) {
-                            console.error('Error reclamando puntos:', error);
-                            toastError('Error', 'No se pudieron reclamar los puntos. Inténtalo de nuevo.');
-                          } finally {
-                            setReclamandoCreditos(false);
-                          }
-                        }}
-                        disabled={!puedeReclamar || reclamandoCreditos}
-                        className={`px-6 py-4 rounded-xl font-bold text-lg transition-all flex items-center gap-2 ${
-                          puedeReclamar
-                            ? 'bg-white text-orange-600 hover:bg-yellow-50 hover:scale-105 shadow-lg hover:shadow-xl cursor-pointer'
-                            : 'bg-white/20 text-white/70 cursor-not-allowed'
-                        }`}
-                      >
-                        {reclamandoCreditos ? (
-                          <>
-                            <div className="animate-spin w-5 h-5 border-2 border-orange-600 border-t-transparent rounded-full"></div>
-                            Reclamando...
-                          </>
-                        ) : puedeReclamar ? (
-                          <>
-                            <Sparkles size={20} />
-                            ¡Reclamar Gratis!
-                          </>
-                        ) : (
-                          <>
-                            <Clock size={20} />
-                            {horasParaReclamar}h restantes
-                          </>
-                        )}
-                      </button>
+                    <div>
+                      <h3 className="text-xl font-bold text-white">Tu Saldo</h3>
+                      <p className="text-blue-100 text-sm">Créditos disponibles para promociones</p>
                     </div>
                   </div>
-                  
-                  {/* Info adicional sobre créditos */}
-                  <div className="mt-4 pt-4 border-t border-white/20 grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center gap-2">
-                      <span className="text-lg">📅</span>
-                      <div>
-                        <p className="text-white text-xs font-semibold">Diario</p>
-                        <p className="text-amber-100 text-xs">{configCreditos.creditosPorDia} puntos/día</p>
-                      </div>
-                    </div>
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center gap-2">
-                      <span className="text-lg">💵</span>
-                      <div>
-                        <p className="text-white text-xs font-semibold">Valor</p>
-                        <p className="text-amber-100 text-xs">1 punto = {configCreditos.valorPuntosEnEuros.toFixed(2)}€</p>
-                      </div>
-                    </div>
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center gap-2">
-                      <span className="text-lg">💎</span>
-                      <div>
-                        <p className="text-white text-xs font-semibold">{t('profile.totalClaimed')}</p>
-                        <p className="text-amber-100 text-xs">{creditosUsuario?.totalReclamado || 0} puntos</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 🛒 TIENDA DE ANUNCIOS CON PUNTOS */}
-              <div className="bg-white rounded-2xl shadow-lg border-2 border-purple-100 overflow-hidden">
-                {/* Header de la tienda */}
-                <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                        <span className="text-2xl">🏪</span>
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-white">Tienda de Anuncios</h3>
-                        <p className="text-purple-200 text-sm">Canjea tus puntos por anuncios extras</p>
-                      </div>
-                    </div>
-                    <div className="text-right bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2">
-                      <p className="text-purple-200 text-xs">Puedes comprar</p>
-                      <p className="text-2xl font-black text-white">
-                        {calcularAnunciosConPuntos(creditosUsuario?.saldo || 0, configCreditos)} anuncios
+                  <div className="flex items-center gap-4">
+                    <div className="text-right bg-white/20 backdrop-blur-sm rounded-xl px-6 py-3">
+                      <p className="text-blue-100 text-xs">Disponible</p>
+                      <p className="text-3xl font-black text-white">
+                        {typeof usuario?.creditos === 'number' ? usuario.creditos.toFixed(2) : '0.00'}€
                       </p>
                     </div>
+                    <button
+                      onClick={() => setShowRecargarModal(true)}
+                      className="px-6 py-3 bg-white text-indigo-600 rounded-xl font-bold hover:bg-blue-50 transition-all flex items-center gap-2"
+                    >
+                      <Plus size={18} />
+                      Recargar
+                    </button>
                   </div>
-                </div>
-                
-                {/* Contenido de la tienda */}
-                <div className="p-6">
-                  {/* Info de precios */}
-                  <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-4 mb-6">
-                    <div className="flex flex-wrap items-center justify-center gap-6">
-                      <div className="text-center">
-                        <p className="text-gray-500 text-xs">Precio por anuncio</p>
-                        <p className="text-2xl font-black text-purple-600">{configCreditos.precioAnuncioEnEuros}€</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-gray-500 text-xs">=</p>
-                        <p className="text-2xl font-bold text-gray-400">=</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-gray-500 text-xs">En puntos</p>
-                        <p className="text-2xl font-black text-amber-600">
-                          {calcularPuntosPorAnuncios(1, configCreditos)} puntos
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Selector de cantidad */}
-                  <div className="mb-6">
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
-                      ¿Cuántos anuncios quieres? (máx. {configCreditos.maxAnunciosPorCanje})
-                    </label>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {[1, 2, 3, 5, 10].filter(n => n <= configCreditos.maxAnunciosPorCanje).map(num => (
-                        <button
-                          key={num}
-                          onClick={() => setCantidadAnunciosACanjear(num)}
-                          className={`px-5 py-3 rounded-xl font-bold transition-all ${
-                            cantidadAnunciosACanjear === num
-                              ? 'bg-purple-600 text-white shadow-lg scale-105'
-                              : 'bg-gray-100 text-gray-700 hover:bg-purple-100'
-                          }`}
-                        >
-                          {num}
-                        </button>
-                      ))}
-                    </div>
-                    
-                    {/* Slider para cantidad personalizada */}
-                    <input
-                      type="range"
-                      min="1"
-                      max={configCreditos.maxAnunciosPorCanje}
-                      value={cantidadAnunciosACanjear}
-                      onChange={(e) => setCantidadAnunciosACanjear(parseInt(e.target.value))}
-                      className="w-full h-2 bg-purple-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
-                    />
-                  </div>
-                  
-                  {/* Resumen del canje */}
-                  <div className="bg-gray-50 rounded-xl p-5 mb-6">
-                    <div className="grid grid-cols-3 gap-4 text-center">
-                      <div>
-                        <p className="text-gray-500 text-xs mb-1">Anuncios</p>
-                        <p className="text-3xl font-black text-purple-600">{cantidadAnunciosACanjear}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-500 text-xs mb-1">Puntos necesarios</p>
-                        <p className="text-3xl font-black text-amber-600">
-                          {calcularPuntosPorAnuncios(cantidadAnunciosACanjear, configCreditos)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-gray-500 text-xs mb-1">Valor en €</p>
-                        <p className="text-3xl font-black text-green-600">
-                          {(cantidadAnunciosACanjear * configCreditos.precioAnuncioEnEuros).toFixed(2)}€
-                        </p>
-                      </div>
-                    </div>
-                    
-                    {/* Barra de progreso de puntos */}
-                    <div className="mt-4">
-                      <div className="flex justify-between text-xs text-gray-500 mb-1">
-                        <span>Tus puntos: {creditosUsuario?.saldo || 0}</span>
-                        <span>Necesitas: {calcularPuntosPorAnuncios(cantidadAnunciosACanjear, configCreditos)}</span>
-                      </div>
-                      <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full transition-all duration-500 ${
-                            (creditosUsuario?.saldo || 0) >= calcularPuntosPorAnuncios(cantidadAnunciosACanjear, configCreditos)
-                              ? 'bg-gradient-to-r from-green-500 to-emerald-500'
-                              : 'bg-gradient-to-r from-amber-400 to-orange-500'
-                          }`}
-                          style={{ 
-                            width: `${Math.min(100, ((creditosUsuario?.saldo || 0) / calcularPuntosPorAnuncios(cantidadAnunciosACanjear, configCreditos)) * 100)}%` 
-                          }}
-                        ></div>
-                      </div>
-                      {(creditosUsuario?.saldo || 0) < calcularPuntosPorAnuncios(cantidadAnunciosACanjear, configCreditos) && (
-                        <p className="text-xs text-orange-600 mt-2 flex items-center gap-1">
-                          <Clock size={12} />
-                          Te faltan {calcularPuntosPorAnuncios(cantidadAnunciosACanjear, configCreditos) - (creditosUsuario?.saldo || 0)} puntos
-                          (≈{Math.ceil((calcularPuntosPorAnuncios(cantidadAnunciosACanjear, configCreditos) - (creditosUsuario?.saldo || 0)) / configCreditos.creditosPorDia)} días)
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* Botón de canjear */}
-                  <button
-                    onClick={async () => {
-                      if (!user?.uid || canjeandoAnuncios) return;
-                      
-                      const puntosNecesarios = calcularPuntosPorAnuncios(cantidadAnunciosACanjear, configCreditos);
-                      
-                      if ((creditosUsuario?.saldo || 0) < puntosNecesarios) {
-                        toastWarning('Puntos insuficientes', `Tienes ${creditosUsuario?.saldo || 0} puntos. Necesitas ${puntosNecesarios} puntos.`);
-                        return;
-                      }
-                      
-                      setCanjeandoAnuncios(true);
-                      try {
-                        const resultado = await comprarAnunciosConPuntos(user.uid, cantidadAnunciosACanjear, configCreditos);
-                        
-                        if (resultado.success) {
-                          // Actualizar saldo local
-                          setCreditosUsuario(prev => prev ? {
-                            ...prev,
-                            saldo: resultado.saldoRestante || 0
-                          } : null);
-                          
-                          // TODO: Aquí deberías también añadir los anuncios al plan del usuario
-                          // Por ahora solo mostramos el mensaje de éxito
-                          
-                          toastGift('¡Canje exitoso!', `${resultado.mensaje} • Saldo restante: ${resultado.saldoRestante} puntos`);
-                        } else {
-                          toastError('Error en el canje', resultado.mensaje);
-                        }
-                      } catch (error) {
-                        console.error('Error canjeando anuncios:', error);
-                        toastError('Error', 'No se pudo procesar el canje. Inténtalo de nuevo.');
-                      } finally {
-                        setCanjeandoAnuncios(false);
-                      }
-                    }}
-                    disabled={(creditosUsuario?.saldo || 0) < calcularPuntosPorAnuncios(cantidadAnunciosACanjear, configCreditos) || canjeandoAnuncios}
-                    className={`w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-3 ${
-                      (creditosUsuario?.saldo || 0) >= calcularPuntosPorAnuncios(cantidadAnunciosACanjear, configCreditos)
-                        ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-[1.02]'
-                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    }`}
-                  >
-                    {canjeandoAnuncios ? (
-                      <>
-                        <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                        Procesando...
-                      </>
-                    ) : (creditosUsuario?.saldo || 0) >= calcularPuntosPorAnuncios(cantidadAnunciosACanjear, configCreditos) ? (
-                      <>
-                        <span className="text-xl">🛒</span>
-                        Canjear {cantidadAnunciosACanjear} anuncio{cantidadAnunciosACanjear > 1 ? 's' : ''} por {calcularPuntosPorAnuncios(cantidadAnunciosACanjear, configCreditos)} puntos
-                      </>
-                    ) : (
-                      <>
-                        <span className="text-xl">🔒</span>
-                        Puntos insuficientes
-                      </>
-                    )}
-                  </button>
-                  
-                  {/* Info adicional */}
-                  <p className="text-center text-xs text-gray-500 mt-4">
-                    Los anuncios canjeados se añaden a tu plan activo y tienen la misma duración.
-                  </p>
                 </div>
               </div>
 
