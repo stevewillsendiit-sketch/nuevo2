@@ -1981,8 +1981,8 @@ export default function ProfilePage() {
                         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 flex-1">
                           {/* Avatar limpio */}
                           <div className="relative">
-                            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center shadow-md">
-                              <span className="text-3xl sm:text-4xl font-bold text-white">
+                            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center shadow-md border border-blue-200">
+                              <span className="text-3xl sm:text-4xl font-bold text-blue-600">
                                 {usuario?.nombre?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'}
                               </span>
                             </div>
