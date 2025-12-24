@@ -2048,29 +2048,35 @@ export default function ProfilePage() {
                         
                         {/* Tarjeta de créditos - diseño clásico */}
                         <div className="w-full lg:w-72 flex-shrink-0">
-                          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-5 shadow-md">
-                            <div className="flex items-center justify-between mb-4">
-                              <div className="flex items-center gap-2">
-                                <div className="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center">
-                                  <Wallet size={18} className="text-white" />
+                          <div className="rounded-xl overflow-hidden shadow-md">
+                            {/* Parte superior - Azul */}
+                            <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-5">
+                              <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
+                                    <Wallet size={18} className="text-white" />
+                                  </div>
+                                  <span className="text-white text-sm font-medium">{t('profile.myBalance')}</span>
                                 </div>
-                                <span className="text-white/90 text-sm font-medium">{t('profile.myBalance')}</span>
+                                <Gem size={18} className="text-white/60" />
                               </div>
-                              <Gem size={18} className="text-white/50" />
+                              
+                              <div>
+                                <p className="text-white/70 text-xs uppercase tracking-wide mb-0.5">{t('profile.available')}</p>
+                                <span className="text-4xl font-bold text-white">{creditos.toFixed(2)}<span className="text-2xl ml-0.5 text-white/80">€</span></span>
+                              </div>
                             </div>
                             
-                            <div className="mb-4">
-                              <p className="text-white/50 text-xs uppercase tracking-wide mb-0.5">{t('profile.available')}</p>
-                              <span className="text-4xl font-bold text-white">{creditos.toFixed(2)}<span className="text-2xl ml-0.5 text-white/70">€</span></span>
+                            {/* Parte inferior - Blanco/Gris */}
+                            <div className="bg-gradient-to-b from-gray-50 to-white p-4 border-t border-gray-100">
+                              <button 
+                                onClick={() => setShowRecargarModal(true)}
+                                className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-semibold text-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+                              >
+                                <Plus size={16} />
+                                {t('profile.rechargeCredits')}
+                              </button>
                             </div>
-                            
-                            <button 
-                              onClick={() => setShowRecargarModal(true)}
-                              className="w-full py-2.5 bg-white text-slate-800 rounded-lg font-semibold text-sm hover:bg-gray-100 transition-colors flex items-center justify-center gap-1.5"
-                            >
-                              <Plus size={16} />
-                              {t('profile.rechargeCredits')}
-                            </button>
                           </div>
                         </div>
                       </div>
