@@ -37,21 +37,29 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<"grid" | "list" | "compact">("grid");
   const [promoIndex, setPromoIndex] = useState(0);
   const [hoverImageIndex, setHoverImageIndex] = useState<{ [key: string]: number }>({});
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
+  // Marcar como montado para evitar errores de hidratación
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Cargar viewMode desde localStorage después del montaje (evita error de hidratación)
   useEffect(() => {
+    if (!mounted) return;
     const saved = localStorage.getItem('viewMode');
     if (saved === 'grid' || saved === 'list' || saved === 'compact') {
       setViewMode(saved);
     }
-  }, []);
+  }, [mounted]);
 
   // Guardar viewMode en localStorage cuando cambie
   useEffect(() => {
-    localStorage.setItem('viewMode', viewMode);
-  }, [viewMode]);
+    if (typeof window !== 'undefined' && mounted) {
+      localStorage.setItem('viewMode', viewMode);
+    }
+  }, [viewMode, mounted]);
 
   // Función para cambiar imagen basado en posición del ratón (izquierda/derecha)
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>, anuncioId: string, totalImages: number) => {
@@ -74,14 +82,11 @@ export default function Home() {
     setHoverImageIndex(prev => ({ ...prev, [anuncioId]: 0 }));
   };
 
-  // Guardar viewMode en localStorage cuando cambie
-  useEffect(() => {
-    localStorage.setItem('viewMode', viewMode);
-  }, [viewMode]);
-
   // Scroll al inicio cuando se carga la página
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
   }, []);
 
   useEffect(() => {
@@ -153,14 +158,16 @@ export default function Home() {
           });
         } catch (e) {
           console.error('Error cargando promociones de Firestore:', e);
-          // Fallback a localStorage si Firestore falla
-          const promocionesGuardadas = localStorage.getItem('promocionesActivas');
-          if (promocionesGuardadas) {
-            try {
-              promocionesActivas = JSON.parse(promocionesGuardadas);
-              promocionesActivas = promocionesActivas.filter(p => p.diasRestantes > 0);
-            } catch (e2) {
-              console.error('Error cargando promociones de localStorage:', e2);
+          // Fallback a localStorage si Firestore falla - solo en cliente
+          if (typeof window !== 'undefined') {
+            const promocionesGuardadas = localStorage.getItem('promocionesActivas');
+            if (promocionesGuardadas) {
+              try {
+                promocionesActivas = JSON.parse(promocionesGuardadas);
+                promocionesActivas = promocionesActivas.filter(p => p.diasRestantes > 0);
+              } catch (e2) {
+                console.error('Error cargando promociones de localStorage:', e2);
+              }
             }
           }
         }

@@ -312,8 +312,15 @@ export function AdPopup({ onClose, categoria, ubicacion }: AdPopupProps) {
 // Hook para manejar popup con frecuencia
 export function useAdPopup(frecuenciaMinutos: number = 30) {
   const [showPopup, setShowPopup] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted || typeof window === 'undefined') return;
+    
     const lastShown = localStorage.getItem('lastAdPopup');
     const now = Date.now();
     
@@ -326,7 +333,7 @@ export function useAdPopup(frecuenciaMinutos: number = 30) {
       
       return () => clearTimeout(timer);
     }
-  }, [frecuenciaMinutos]);
+  }, [frecuenciaMinutos, mounted]);
 
   const closePopup = () => setShowPopup(false);
 

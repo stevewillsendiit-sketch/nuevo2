@@ -146,11 +146,14 @@ export default function SearchPage() {
     let url = `/search?q=${encodeURIComponent(query)}`;
     if (selectedCategory) url += `&categoria=${encodeURIComponent(selectedCategory)}`;
     url += `&ubicacion=${encodeURIComponent(nuevaUbicacion)}`;
-    window.history.replaceState(null, '', url);
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', url);
+    }
   };
 
   // Cargar viewMode de localStorage después del montaje
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     const saved = localStorage.getItem(VIEW_MODE_KEY);
     if (saved === 'list' || saved === 'photo' || saved === 'grid') {
       setViewMode(saved);
@@ -198,10 +201,13 @@ export default function SearchPage() {
 
   // Guardar viewMode en localStorage cuando cambie
   useEffect(() => {
-    localStorage.setItem(VIEW_MODE_KEY, viewMode);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(VIEW_MODE_KEY, viewMode);
+    }
   }, [viewMode]);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     try {
       const raw = localStorage.getItem(HISTORY_KEY);
       if (raw) setHistory(JSON.parse(raw));
@@ -209,6 +215,7 @@ export default function SearchPage() {
   }, []);
 
   const saveHistory = (item: HistoryItem) => {
+    if (typeof window === 'undefined') return;
     try {
       const next = [item, ...(history.filter(h => !(h.q === item.q && h.categoria === item.categoria)))].slice(0, 5);
       setHistory(next);

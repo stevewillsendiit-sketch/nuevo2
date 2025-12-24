@@ -159,9 +159,11 @@ export default function GlobalCategoryBar() {
 
   // Cargar preferencia de localStorage al montar
   useEffect(() => {
-    const saved = localStorage.getItem('showCategories');
-    if (saved !== null) {
-      setShowCategories(saved === 'true');
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('showCategories');
+      if (saved !== null) {
+        setShowCategories(saved === 'true');
+      }
     }
   }, []);
 
@@ -202,7 +204,9 @@ export default function GlobalCategoryBar() {
   const toggleCategories = () => {
     const newValue = !showCategories;
     setShowCategories(newValue);
-    localStorage.setItem('showCategories', String(newValue));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('showCategories', String(newValue));
+    }
   };
 
   const handleSearch = (e: React.FormEvent) => {

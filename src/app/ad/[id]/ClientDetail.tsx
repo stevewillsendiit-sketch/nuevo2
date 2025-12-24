@@ -43,14 +43,16 @@ export default function ClientDetail({ id }: Props) {
       loadAnuncio(id);
       setEsFavorito(isFavorito(id));
       
-      // Cargar promoción si existe
-      const promocionesGuardadas = localStorage.getItem('promocionesActivas');
-      if (promocionesGuardadas) {
-        try {
-          const promociones = JSON.parse(promocionesGuardadas);
-          const promo = promociones.find((p: any) => p.anuncioId === id && p.diasRestantes > 0);
-          setPromocion(promo);
-        } catch (e) {}
+      // Cargar promoción si existe - solo en cliente
+      if (typeof window !== 'undefined') {
+        const promocionesGuardadas = localStorage.getItem('promocionesActivas');
+        if (promocionesGuardadas) {
+          try {
+            const promociones = JSON.parse(promocionesGuardadas);
+            const promo = promociones.find((p: any) => p.anuncioId === id && p.diasRestantes > 0);
+            setPromocion(promo);
+          } catch (e) {}
+        }
       }
     }
   }, [id]);
