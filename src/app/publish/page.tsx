@@ -7,6 +7,7 @@ import { createAnuncio } from '@/lib/anuncios.service';
 import { Categoria, CondicionProducto, EstadoAnuncio } from '@/types';
 import Image from 'next/image';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { getConfiguracionPromociones, type ConfiguracionPromociones } from '@/lib/promociones.service';
 import { 
   Camera, 
   X, 
@@ -93,6 +94,29 @@ export default function PublishPage() {
   const [promocionarAlPublicar, setPromocionarAlPublicar] = useState(true);
   const [tipoPromocion, setTipoPromocion] = useState<'Destacado' | 'Premium' | 'VIP' | null>('Destacado');
   const [duracionPromocion, setDuracionPromocion] = useState<7 | 14 | 30>(7);
+  const [configuracionPromociones, setConfiguracionPromociones] = useState<ConfiguracionPromociones | null>(null);
+  
+  // Cargar configuración de promociones
+  useEffect(() => {
+    getConfiguracionPromociones().then(setConfiguracionPromociones);
+  }, []);
+  
+  // Función helper para obtener precios de promoción (con descuento si aplica)
+  const getPrecioPromocion = (tipo: 'VIP' | 'Premium' | 'Destacado'): number => {
+    const precios = {
+      VIP: configuracionPromociones?.precioVIP ?? 10,
+      Premium: configuracionPromociones?.precioPremium ?? 5,
+      Destacado: configuracionPromociones?.precioDestacado ?? 2
+    };
+    let precio = precios[tipo];
+    
+    // Aplicar descuento global si está activo
+    if (configuracionPromociones?.descuentoGlobalActivo && configuracionPromociones?.descuentoGlobalPorcentaje > 0) {
+      precio = precio * (1 - configuracionPromociones.descuentoGlobalPorcentaje / 100);
+    }
+    
+    return Math.round(precio * 100) / 100; // Redondear a 2 decimales
+  };
   
   // Estados para campos específicos por categoría
   // Auto moto
@@ -1849,6 +1873,19 @@ export default function PublishPage() {
 
                 {promocionarAlPublicar && (
                   <div className="space-y-4 pt-4 border-t border-gray-100 animate-fadeIn">
+                    {/* Mostrar descuento global si está activo */}
+                    {configuracionPromociones?.descuentoGlobalActivo && configuracionPromociones?.descuentoGlobalPorcentaje > 0 && (
+                      <div className="p-3 bg-gradient-to-r from-red-500 to-pink-600 rounded-xl text-white">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">🎉</span>
+                          <div>
+                            <p className="font-bold text-sm">¡{configuracionPromociones.descuentoGlobalPorcentaje}% DESCUENTO!</p>
+                            <p className="text-xs text-white/80">{configuracionPromociones.mensajePromo || 'Promoción por tiempo limitado'}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
                     {/* Selección de tipo de promoción */}
                     <div className="grid grid-cols-3 gap-3">
                       {/* Destacado */}
@@ -1864,7 +1901,10 @@ export default function PublishPage() {
                         <Award className={`mx-auto mb-2 ${tipoPromocion === 'Destacado' ? 'text-yellow-500' : 'text-gray-400'}`} size={24} />
                         <p className="font-bold text-sm text-gray-900">Destacado</p>
                         <p className="text-xs text-gray-500">+100%</p>
-                        <p className="text-lg font-black text-yellow-600 mt-1">2€</p>
+                        {configuracionPromociones?.descuentoGlobalActivo && configuracionPromociones?.descuentoGlobalPorcentaje > 0 && (
+                          <p className="text-xs text-gray-400 line-through">{configuracionPromociones.precioDestacado}€</p>
+                        )}
+                        <p className="text-lg font-black text-yellow-600 mt-1">{getPrecioPromocion('Destacado')}€</p>
                       </button>
 
                       {/* Premium */}
@@ -1883,7 +1923,10 @@ export default function PublishPage() {
                         <Star className={`mx-auto mb-2 ${tipoPromocion === 'Premium' ? 'text-purple-500' : 'text-gray-400'}`} size={24} />
                         <p className="font-bold text-sm text-gray-900">Premium</p>
                         <p className="text-xs text-gray-500">+200%</p>
-                        <p className="text-lg font-black text-purple-600 mt-1">5€</p>
+                        {configuracionPromociones?.descuentoGlobalActivo && configuracionPromociones?.descuentoGlobalPorcentaje > 0 && (
+                          <p className="text-xs text-gray-400 line-through">{configuracionPromociones.precioPremium}€</p>
+                        )}
+                        <p className="text-lg font-black text-purple-600 mt-1">{getPrecioPromocion('Premium')}€</p>
                       </button>
 
                       {/* VIP */}
@@ -1899,7 +1942,10 @@ export default function PublishPage() {
                         <Crown className={`mx-auto mb-2 ${tipoPromocion === 'VIP' ? 'text-pink-500' : 'text-gray-400'}`} size={24} />
                         <p className="font-bold text-sm text-gray-900">VIP</p>
                         <p className="text-xs text-gray-500">+500%</p>
-                        <p className="text-lg font-black text-pink-600 mt-1">10€</p>
+                        {configuracionPromociones?.descuentoGlobalActivo && configuracionPromociones?.descuentoGlobalPorcentaje > 0 && (
+                          <p className="text-xs text-gray-400 line-through">{configuracionPromociones.precioVIP}€</p>
+                        )}
+                        <p className="text-lg font-black text-pink-600 mt-1">{getPrecioPromocion('VIP')}€</p>
                       </button>
                     </div>
 
@@ -1913,7 +1959,7 @@ export default function PublishPage() {
                             { dias: 14 as const, multiplicador: 1.8, ahorro: '10%' },
                             { dias: 30 as const, multiplicador: 3.5, ahorro: '17%' },
                           ].map((opcion) => {
-                            const precioBase = tipoPromocion === 'VIP' ? 10 : tipoPromocion === 'Premium' ? 5 : 2;
+                            const precioBase = getPrecioPromocion(tipoPromocion);
                             const precio = Math.round(precioBase * opcion.multiplicador);
                             return (
                               <button
@@ -1947,7 +1993,7 @@ export default function PublishPage() {
                         </div>
                         <span className="text-xl font-black text-purple-600">
                           +{(() => {
-                            const precioBase = tipoPromocion === 'VIP' ? 10 : tipoPromocion === 'Premium' ? 5 : 2;
+                            const precioBase = getPrecioPromocion(tipoPromocion);
                             const multiplicador = duracionPromocion === 7 ? 1 : duracionPromocion === 14 ? 1.8 : 3.5;
                             return Math.round(precioBase * multiplicador);
                           })()}€

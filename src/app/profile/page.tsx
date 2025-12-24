@@ -705,6 +705,23 @@ export default function ProfilePage() {
     }
   };
 
+  // Función helper para obtener precios de promoción (con descuento si aplica)
+  const getPrecioPromocion = (tipo: 'VIP' | 'Premium' | 'Destacado'): number => {
+    const precios = {
+      VIP: configuracionPromociones?.precioVIP ?? 10,
+      Premium: configuracionPromociones?.precioPremium ?? 5,
+      Destacado: configuracionPromociones?.precioDestacado ?? 2
+    };
+    let precio = precios[tipo];
+    
+    // Aplicar descuento global si está activo
+    if (configuracionPromociones?.descuentoGlobalActivo && configuracionPromociones?.descuentoGlobalPorcentaje > 0) {
+      precio = precio * (1 - configuracionPromociones.descuentoGlobalPorcentaje / 100);
+    }
+    
+    return Math.round(precio * 100) / 100; // Redondear a 2 decimales
+  };
+
   // Función para activar promoción de un anuncio
   const handleActivarPromocion = async (usarCreditos: boolean = false) => {
     if (!anuncioParaPromover || !tipoPromocionSeleccionada || !user?.uid) {
@@ -712,7 +729,7 @@ export default function ProfilePage() {
       return;
     }
 
-    const precioBase = tipoPromocionSeleccionada === 'VIP' ? 10 : tipoPromocionSeleccionada === 'Premium' ? 5 : 2;
+    const precioBase = getPrecioPromocion(tipoPromocionSeleccionada);
     const multiplicador = duracionPromocion === 7 ? 1 : duracionPromocion === 14 ? 1.8 : 3.5;
     const precioFinal = Math.round(precioBase * multiplicador);
 
@@ -1153,7 +1170,7 @@ export default function ProfilePage() {
           anuncio: anuncio,
           tipo: anuncio.planPromocion || 'Destacado',
           vistas: anuncio.vistas || 0,
-          precio: anuncio.planPromocion === 'VIP' ? 10 : anuncio.planPromocion === 'Premium' ? 5 : 2,
+          precio: configuracionPromociones ? (anuncio.planPromocion === 'VIP' ? configuracionPromociones.precioVIP : anuncio.planPromocion === 'Premium' ? configuracionPromociones.precioPremium : configuracionPromociones.precioDestacado) : (anuncio.planPromocion === 'VIP' ? 10 : anuncio.planPromocion === 'Premium' ? 5 : 2),
           diasRestantes: diasRestantes,
           diasDuracion: anuncio.diasPromocion || 7,
           totalAnuncios: 1,
@@ -5973,7 +5990,7 @@ export default function ProfilePage() {
           isOpen={showPromoPaymentModal && anuncioParaPromover !== null && tipoPromocionSeleccionada !== null}
           onClose={() => setShowPromoPaymentModal(false)}
           amount={(() => {
-            const precioBase = tipoPromocionSeleccionada === 'VIP' ? 10 : tipoPromocionSeleccionada === 'Premium' ? 5 : 2;
+            const precioBase = tipoPromocionSeleccionada ? getPrecioPromocion(tipoPromocionSeleccionada) : 2;
             const multiplicador = duracionPromocion === 7 ? 1 : duracionPromocion === 14 ? 1.8 : 3.5;
             return Math.round(precioBase * multiplicador);
           })()}
@@ -6203,6 +6220,20 @@ export default function ProfilePage() {
                   </div>
 
                   <h3 className="font-semibold text-gray-900 mb-4">Alege tipul de promovare</h3>
+                  
+                  {/* Mostrar descuento global si está activo */}
+                  {configuracionPromociones?.descuentoGlobalActivo && configuracionPromociones?.descuentoGlobalPorcentaje > 0 && (
+                    <div className="mb-4 p-3 bg-gradient-to-r from-red-500 to-pink-600 rounded-xl text-white">
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl">🎉</span>
+                        <div>
+                          <p className="font-bold">¡{configuracionPromociones.descuentoGlobalPorcentaje}% DESCUENTO!</p>
+                          <p className="text-sm text-white/80">{configuracionPromociones.mensajePromo || 'Promoción por tiempo limitado'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="space-y-3">
                     {/* Destacado */}
                     <button
@@ -6221,7 +6252,10 @@ export default function ProfilePage() {
                           <p className="text-sm text-gray-500">Apare primul în căutări • +100% vizibilitate</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-2xl font-black text-yellow-600">2€</p>
+                          {configuracionPromociones?.descuentoGlobalActivo && configuracionPromociones?.descuentoGlobalPorcentaje > 0 && (
+                            <p className="text-sm text-gray-400 line-through">{configuracionPromociones.precioDestacado}€</p>
+                          )}
+                          <p className="text-2xl font-black text-yellow-600">{getPrecioPromocion('Destacado')}€</p>
                           <p className="text-xs text-gray-500">/7 zile</p>
                         </div>
                       </div>
@@ -6246,7 +6280,10 @@ export default function ProfilePage() {
                           <p className="text-sm text-white/80">Expunere maximă • Badge Premium • +200% vizibilitate</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-2xl font-black">5€</p>
+                          {configuracionPromociones?.descuentoGlobalActivo && configuracionPromociones?.descuentoGlobalPorcentaje > 0 && (
+                            <p className="text-sm text-white/50 line-through">{configuracionPromociones.precioPremium}€</p>
+                          )}
+                          <p className="text-2xl font-black">{getPrecioPromocion('Premium')}€</p>
                           <p className="text-xs text-white/70">/7 zile</p>
                         </div>
                       </div>
@@ -6271,7 +6308,10 @@ export default function ProfilePage() {
                           <p className="text-sm text-white/80">Prima poziție • Badge VIP • Suport prioritar • +500% vizibilitate</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-2xl font-black">10€</p>
+                          {configuracionPromociones?.descuentoGlobalActivo && configuracionPromociones?.descuentoGlobalPorcentaje > 0 && (
+                            <p className="text-sm text-white/50 line-through">{configuracionPromociones.precioVIP}€</p>
+                          )}
+                          <p className="text-2xl font-black">{getPrecioPromocion('VIP')}€</p>
                           <p className="text-xs text-white/70">/7 zile</p>
                         </div>
                       </div>
@@ -6324,7 +6364,7 @@ export default function ProfilePage() {
                       { dias: 14 as const, label: '14 zile', multiplicador: 1.8, ahorro: '10%' },
                       { dias: 30 as const, label: '30 zile', multiplicador: 3.5, ahorro: '17%' },
                     ].map((opcion) => {
-                      const precioBase = tipoPromocionSeleccionada === 'VIP' ? 10 : tipoPromocionSeleccionada === 'Premium' ? 5 : 2;
+                      const precioBase = tipoPromocionSeleccionada ? getPrecioPromocion(tipoPromocionSeleccionada) : 2;
                       const precio = Math.round(precioBase * opcion.multiplicador);
                       return (
                         <button
@@ -6346,7 +6386,7 @@ export default function ProfilePage() {
 
                   {/* Botón de pagar */}
                   {(() => {
-                    const precioBase = tipoPromocionSeleccionada === 'VIP' ? 10 : tipoPromocionSeleccionada === 'Premium' ? 5 : 2;
+                    const precioBase = tipoPromocionSeleccionada ? getPrecioPromocion(tipoPromocionSeleccionada) : 2;
                     const multiplicador = duracionPromocion === 7 ? 1 : duracionPromocion === 14 ? 1.8 : 3.5;
                     const precioFinal = Math.round(precioBase * multiplicador);
                     return (
@@ -6362,7 +6402,7 @@ export default function ProfilePage() {
 
                   {/* Método de pago con créditos */}
                   {(() => {
-                    const precioBase = tipoPromocionSeleccionada === 'VIP' ? 10 : tipoPromocionSeleccionada === 'Premium' ? 5 : 2;
+                    const precioBase = tipoPromocionSeleccionada ? getPrecioPromocion(tipoPromocionSeleccionada) : 2;
                     const multiplicador = duracionPromocion === 7 ? 1 : duracionPromocion === 14 ? 1.8 : 3.5;
                     const precioFinal = Math.round(precioBase * multiplicador);
                     return creditos >= precioFinal ? (
