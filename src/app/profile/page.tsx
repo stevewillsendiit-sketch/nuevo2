@@ -1384,11 +1384,12 @@ export default function ProfilePage() {
       <aside className={`
         fixed lg:sticky top-0 left-0 h-screen z-50
         w-[280px] sm:w-72 bg-white border-r border-gray-200 
-        flex flex-col justify-between py-6 px-4 shadow-lg lg:shadow-sm
-        transform transition-transform duration-300 ease-in-out
+        flex flex-col py-6 px-4 shadow-lg lg:shadow-sm
+        transform transition-transform duration-300 ease-in-out overflow-hidden
         ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        <div>
+        {/* Contenido con scroll */}
+        <div className="flex-1 overflow-y-auto">
           {/* User Info - Diseño Elegante */}
           <div className="flex flex-col items-center mb-8 pb-6 border-b border-gray-100">
             {(() => {
@@ -1575,8 +1576,8 @@ export default function ProfilePage() {
           </nav>
         </div>
 
-        {/* Logout Section - Bien organizado */}
-        <div className="mt-auto pt-4 border-t border-gray-100">
+        {/* Logout Section - Fijo abajo */}
+        <div className="flex-shrink-0 pt-4 border-t border-gray-100 bg-white">
           <button 
             onClick={async () => {
               if (confirm(t('general.confirm') + '?')) {
@@ -1594,11 +1595,6 @@ export default function ProfilePage() {
             <LogOut size={18} className="group-hover:scale-110 transition-transform" />
             <span>{t('nav.logout')}</span>
           </button>
-          
-          {/* Footer */}
-          <div className="text-center mt-3 pb-2">
-            <div className="text-xs text-gray-400">© 2025 Nuevo</div>
-          </div>
         </div>
       </aside>
 
