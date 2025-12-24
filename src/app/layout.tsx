@@ -226,3 +226,4 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   );
 }
 // Force rebuild Wed Dec 24 22:53:57 EET 2025
+// Force rebuild Thu Dec 25 01:10:50 EET 2025
