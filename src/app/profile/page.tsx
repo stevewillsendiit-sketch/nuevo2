@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   User,
@@ -105,7 +105,7 @@ import {
 } from "@/lib/promociones.service";
 import { getPlanesUsuario, crearPlan, actualizarPlan, eliminarPlan, calcularDiasRestantes, type Plan } from "@/lib/planes.service";
 import { getConversacionesByUsuario, getMensajesByConversacion, enviarMensaje, marcarMensajesComoLeidos } from "@/lib/mensajes.service";
-import { getUsuario } from "@/lib/auth.service";
+import { getUsuario, updateProfilePhoto } from "@/lib/auth.service";
 import { crearFactura, getFacturasUsuario, descargarFacturaPDF, previsualizarFactura } from "@/lib/facturas.service";
 import { getMensajesUsuario, eliminarMensajeContacto, type MensajeContacto } from "@/lib/contacto.service";
 import {  
@@ -226,6 +226,50 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<'perfil' | 'promociones' | 'mis-anuncios' | 'favoritos' | 'mensajes' | 'soporte' | 'facturas' | 'bonificaciones'>('perfil');
   const [initialLoading, setInitialLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  // Foto de perfil
+  const profilePhotoInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
+  
+  // Cargar foto de perfil del usuario
+  useEffect(() => {
+    if (usuario?.fotoUrl) {
+      setProfilePhotoUrl(usuario.fotoUrl);
+    } else if (user?.photoURL) {
+      setProfilePhotoUrl(user.photoURL);
+    }
+  }, [usuario, user]);
+  
+  // Handler para cambiar foto de perfil
+  const handleProfilePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Validar tipo de archivo
+    if (!file.type.startsWith('image/')) {
+      toastError('Error', 'Por favor selecciona una imagen válida');
+      return;
+    }
+    
+    // Validar tamaño (máx 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toastError('Error', 'La imagen no puede superar los 5MB');
+      return;
+    }
+    
+    setUploadingPhoto(true);
+    try {
+      const newPhotoUrl = await updateProfilePhoto(file);
+      setProfilePhotoUrl(newPhotoUrl);
+      toastSuccess('¡Foto actualizada!', 'Tu foto de perfil se ha cambiado correctamente');
+    } catch (error) {
+      console.error('Error subiendo foto:', error);
+      toastError('Error', 'No se pudo subir la foto. Inténtalo de nuevo.');
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
   
   // Función helper para cambiar de tab y hacer scroll to top
   const handleTabChange = (tab: 'perfil' | 'promociones' | 'mis-anuncios' | 'favoritos' | 'mensajes' | 'soporte' | 'facturas' | 'bonificaciones') => {
@@ -1407,19 +1451,52 @@ export default function ProfilePage() {
               
               return (
                 <>
+                  {/* Input oculto para subir foto */}
+                  <input
+                    type="file"
+                    ref={profilePhotoInputRef}
+                    onChange={handleProfilePhotoChange}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                  
                   {/* Foto de perfil con anillo dinámico */}
-                  <div className="relative mb-5 group">
+                  <div 
+                    className="relative mb-5 group cursor-pointer"
+                    onClick={() => profilePhotoInputRef.current?.click()}
+                    title="Haz clic para cambiar tu foto"
+                  >
                     {/* Anillo exterior animado según plan */}
                     <div className={`absolute -inset-1.5 rounded-full bg-gradient-to-r ${colorScheme.gradient} opacity-75 blur-sm group-hover:opacity-100 transition-opacity duration-300`}></div>
                     <div className={`absolute -inset-1 rounded-full bg-gradient-to-r ${colorScheme.gradient} opacity-50`}></div>
                     
                     {/* Foto */}
                     <div className="relative">
-                      <img
-                        src="https://randomuser.me/api/portraits/men/32.jpg"
-                        alt="User Avatar"
-                        className={`w-24 h-24 rounded-full border-4 border-white shadow-xl object-cover relative z-10 ${colorScheme.glow}`}
-                      />
+                      {uploadingPhoto ? (
+                        <div className={`w-24 h-24 rounded-full border-4 border-white shadow-xl relative z-10 ${colorScheme.glow} bg-gray-100 flex items-center justify-center`}>
+                          <div className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                      ) : (
+                        <img
+                          src={profilePhotoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(usuario?.nombre || user?.displayName || 'U')}&background=3B82F6&color=fff&size=128`}
+                          alt="User Avatar"
+                          className={`w-24 h-24 rounded-full border-4 border-white shadow-xl object-cover relative z-10 ${colorScheme.glow}`}
+                        />
+                      )}
+                      
+                      {/* Overlay con icono de cámara */}
+                      <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/40 transition-all duration-300 z-10 flex items-center justify-center">
+                        <svg 
+                          className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </div>
+                      
                       {/* Indicador online con efecto glow */}
                       <div className="absolute -bottom-0.5 -right-0.5 z-20">
                         <div className="w-6 h-6 bg-green-500 rounded-full border-3 border-white shadow-lg flex items-center justify-center">

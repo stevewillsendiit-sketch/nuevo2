@@ -6,8 +6,9 @@ import {
   User as FirebaseUser,
   updateProfile,
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { auth, db } from './firebase';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { auth, db, storage } from './firebase';
 import { Usuario, TipoUsuario } from '@/types';
 import { registrarUsuarioNuevo } from './analytics.service';
 
@@ -103,4 +104,34 @@ export async function getUsuario(uid: string): Promise<Usuario | null> {
   }
   
   return null;
+}
+
+/**
+ * Actualizar foto de perfil del usuario
+ */
+export async function updateProfilePhoto(file: File): Promise<string> {
+  const user = auth.currentUser;
+  if (!user) throw new Error('No hay usuario autenticado');
+
+  // Crear referencia única para la imagen
+  const fileExtension = file.name.split('.').pop();
+  const fileName = `profile_${user.uid}_${Date.now()}.${fileExtension}`;
+  const storageRef = ref(storage, `profile_photos/${fileName}`);
+
+  // Subir imagen
+  await uploadBytes(storageRef, file);
+  
+  // Obtener URL de descarga
+  const downloadURL = await getDownloadURL(storageRef);
+
+  // Actualizar en Firebase Auth
+  await updateProfile(user, { photoURL: downloadURL });
+
+  // Actualizar en Firestore
+  await updateDoc(doc(db, 'usuarios', user.uid), {
+    fotoUrl: downloadURL,
+    fotoActualizada: new Date(),
+  });
+
+  return downloadURL;
 }

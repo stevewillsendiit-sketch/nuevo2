@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User as FirebaseUser, onAuthStateChanged } from 'firebase/auth';
+import { User as FirebaseUser, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { Usuario, TipoUsuario } from '@/types';
 import { getUsuario, signIn as authSignIn, signUp as authSignUp, signOut as authSignOut, DatosEmpresa } from '@/lib/auth.service';
@@ -14,6 +14,7 @@ interface AuthContextType {
   loading: boolean;
   syncingFavoritos: boolean;
   signIn: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signUp: (email: string, password: string, nombre: string, apellidos: string, tipoUsuario?: TipoUsuario, datosEmpresa?: DatosEmpresa) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -100,8 +101,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await authSignOut();
   };
 
+  const signInWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    await signInWithPopup(auth, provider);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, usuario, loading, syncingFavoritos, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, usuario, loading, syncingFavoritos, signIn, signInWithGoogle, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );
