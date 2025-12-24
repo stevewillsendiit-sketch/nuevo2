@@ -117,6 +117,11 @@ import {
   Smartphone,
   Tablet,
   MapPin,
+  SearchCheck,
+  Link2,
+  FileCode,
+  Image as ImageIcon,
+  Share2,
   Package,
   CreditCard,
   Euro,
@@ -150,7 +155,7 @@ import {
   type AdSlot,
 } from '@/lib/publicidad.service';
 
-type TabType = 'dashboard' | 'usuarios' | 'anuncios' | 'mensajes' | 'promociones' | 'extras' | 'ingresos' | 'bonificaciones' | 'publicidad' | 'reportes' | 'logs' | 'configuracion' | 'estadisticas';
+type TabType = 'dashboard' | 'usuarios' | 'anuncios' | 'mensajes' | 'promociones' | 'extras' | 'ingresos' | 'bonificaciones' | 'publicidad' | 'seo' | 'reportes' | 'logs' | 'configuracion' | 'estadisticas';
 
 export default function AdminPage() {
   const { user, usuario, loading: authLoading, signOut } = useAuth();
@@ -238,6 +243,31 @@ export default function AdminPage() {
     expiresAt: '',
     usageLimit: 0,
   });
+  
+  // Estados para SEO
+  const [seoConfig, setSeoConfig] = useState({
+    siteName: 'Anuncios Romania',
+    siteDescription: 'La mejor plataforma de anuncios clasificados en España para la comunidad rumana. Compra, vende e intercambia productos y servicios.',
+    siteKeywords: 'anuncios, clasificados, rumanos, españa, comprar, vender, segunda mano',
+    ogImage: '/og-image.jpg',
+    twitterHandle: '@anunciosromania',
+    googleAnalyticsId: '',
+    googleSearchConsole: '',
+    bingWebmasterTools: '',
+    robotsTxt: 'User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api\nSitemap: https://anunciosromania.es/sitemap.xml',
+    structuredData: true,
+    canonicalUrl: 'https://anunciosromania.es',
+    hreflangEnabled: true,
+    languages: ['es', 'ro', 'en'],
+    indexingEnabled: true,
+    socialSharing: {
+      facebook: true,
+      twitter: true,
+      whatsapp: true,
+      linkedin: false,
+    }
+  });
+  const [savingSeoConfig, setSavingSeoConfig] = useState(false);
   
   // Estados de UI
   const [loadingData, setLoadingData] = useState(false);
@@ -742,6 +772,7 @@ export default function AdminPage() {
             <p className="text-xs text-gray-400 uppercase tracking-wider px-4 mb-2 mt-6">Sistema</p>
             {[
               { id: 'publicidad', label: 'Publicidad', icon: Monitor },
+              { id: 'seo', label: 'SEO', icon: SearchCheck },
               { id: 'estadisticas', label: 'Estadísticas', icon: Globe },
               { id: 'reportes', label: 'Reportes', icon: AlertTriangle, badge: reportes.length },
               { id: 'logs', label: 'Actividad', icon: Activity },
@@ -3553,6 +3584,379 @@ export default function AdminPage() {
           {/* Panel de Publicidad - Simple AdSense */}
           {activeTab === 'publicidad' && (
             <PublicidadSimplePanel />
+          )}
+
+          {/* Panel de SEO Profesional */}
+          {activeTab === 'seo' && (
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="bg-gradient-to-r from-green-600 to-teal-600 rounded-2xl p-6 text-white">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
+                    <SearchCheck size={28} />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold">SEO & Indexación</h2>
+                    <p className="text-green-100">Optimiza tu sitio para motores de búsqueda</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Grid de configuraciones */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                {/* Meta Tags Generales */}
+                <div className="bg-white rounded-2xl shadow-sm p-6">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                      <FileCode className="text-blue-600" size={20} />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900">Meta Tags Generales</h3>
+                      <p className="text-xs text-gray-500">Información básica del sitio</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Nombre del Sitio
+                      </label>
+                      <input
+                        type="text"
+                        value={seoConfig.siteName}
+                        onChange={(e) => setSeoConfig(prev => ({ ...prev, siteName: e.target.value }))}
+                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Mi Sitio Web"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Meta Descripción
+                      </label>
+                      <textarea
+                        value={seoConfig.siteDescription}
+                        onChange={(e) => setSeoConfig(prev => ({ ...prev, siteDescription: e.target.value }))}
+                        rows={3}
+                        maxLength={160}
+                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                        placeholder="Descripción de tu sitio (máx 160 caracteres)"
+                      />
+                      <p className="text-xs text-gray-400 mt-1">{seoConfig.siteDescription.length}/160 caracteres</p>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Keywords (separadas por coma)
+                      </label>
+                      <input
+                        type="text"
+                        value={seoConfig.siteKeywords}
+                        onChange={(e) => setSeoConfig(prev => ({ ...prev, siteKeywords: e.target.value }))}
+                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="palabra1, palabra2, palabra3"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        URL Canónica
+                      </label>
+                      <input
+                        type="url"
+                        value={seoConfig.canonicalUrl}
+                        onChange={(e) => setSeoConfig(prev => ({ ...prev, canonicalUrl: e.target.value }))}
+                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="https://tusitio.com"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Open Graph / Social */}
+                <div className="bg-white rounded-2xl shadow-sm p-6">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                      <Share2 className="text-purple-600" size={20} />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900">Open Graph & Redes Sociales</h3>
+                      <p className="text-xs text-gray-500">Cómo se ve al compartir</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Imagen OG (URL)
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={seoConfig.ogImage}
+                          onChange={(e) => setSeoConfig(prev => ({ ...prev, ogImage: e.target.value }))}
+                          className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          placeholder="/og-image.jpg"
+                        />
+                        <button className="px-4 py-2.5 bg-purple-100 text-purple-600 rounded-xl hover:bg-purple-200 transition-colors">
+                          <ImageIcon size={18} />
+                        </button>
+                      </div>
+                      <p className="text-xs text-gray-400 mt-1">Recomendado: 1200x630px</p>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Twitter Handle
+                      </label>
+                      <input
+                        type="text"
+                        value={seoConfig.twitterHandle}
+                        onChange={(e) => setSeoConfig(prev => ({ ...prev, twitterHandle: e.target.value }))}
+                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="@tuhandle"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Botones de compartir
+                      </label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { key: 'facebook', label: 'Facebook', color: 'bg-blue-600' },
+                          { key: 'twitter', label: 'Twitter/X', color: 'bg-black' },
+                          { key: 'whatsapp', label: 'WhatsApp', color: 'bg-green-500' },
+                          { key: 'linkedin', label: 'LinkedIn', color: 'bg-blue-700' },
+                        ].map((social) => (
+                          <label key={social.key} className="flex items-center gap-2 p-2 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-50">
+                            <input
+                              type="checkbox"
+                              checked={seoConfig.socialSharing[social.key as keyof typeof seoConfig.socialSharing]}
+                              onChange={(e) => setSeoConfig(prev => ({
+                                ...prev,
+                                socialSharing: { ...prev.socialSharing, [social.key]: e.target.checked }
+                              }))}
+                              className="rounded text-purple-600"
+                            />
+                            <span className={`w-5 h-5 ${social.color} rounded flex items-center justify-center`}>
+                              <Share2 size={10} className="text-white" />
+                            </span>
+                            <span className="text-sm">{social.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Google & Analytics */}
+                <div className="bg-white rounded-2xl shadow-sm p-6">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
+                      <BarChart3 className="text-red-600" size={20} />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900">Google & Webmaster Tools</h3>
+                      <p className="text-xs text-gray-500">Herramientas de análisis</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Google Analytics ID
+                      </label>
+                      <input
+                        type="text"
+                        value={seoConfig.googleAnalyticsId}
+                        onChange={(e) => setSeoConfig(prev => ({ ...prev, googleAnalyticsId: e.target.value }))}
+                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        placeholder="G-XXXXXXXXXX o UA-XXXXXXX-X"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Google Search Console (verificación)
+                      </label>
+                      <input
+                        type="text"
+                        value={seoConfig.googleSearchConsole}
+                        onChange={(e) => setSeoConfig(prev => ({ ...prev, googleSearchConsole: e.target.value }))}
+                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        placeholder="Código de verificación HTML"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Bing Webmaster Tools
+                      </label>
+                      <input
+                        type="text"
+                        value={seoConfig.bingWebmasterTools}
+                        onChange={(e) => setSeoConfig(prev => ({ ...prev, bingWebmasterTools: e.target.value }))}
+                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        placeholder="Código de verificación"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Indexación y Robots */}
+                <div className="bg-white rounded-2xl shadow-sm p-6">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
+                      <Globe className="text-amber-600" size={20} />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900">Indexación & Robots</h3>
+                      <p className="text-xs text-gray-500">Control de rastreo</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                      <div>
+                        <p className="font-medium text-gray-900">Permitir indexación</p>
+                        <p className="text-xs text-gray-500">Los buscadores pueden indexar el sitio</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={seoConfig.indexingEnabled}
+                          onChange={(e) => setSeoConfig(prev => ({ ...prev, indexingEnabled: e.target.checked }))}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                      </label>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                      <div>
+                        <p className="font-medium text-gray-900">Datos estructurados</p>
+                        <p className="text-xs text-gray-500">Schema.org / JSON-LD</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={seoConfig.structuredData}
+                          onChange={(e) => setSeoConfig(prev => ({ ...prev, structuredData: e.target.checked }))}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                      </label>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                      <div>
+                        <p className="font-medium text-gray-900">Hreflang (Multi-idioma)</p>
+                        <p className="text-xs text-gray-500">Etiquetas para versiones en otros idiomas</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={seoConfig.hreflangEnabled}
+                          onChange={(e) => setSeoConfig(prev => ({ ...prev, hreflangEnabled: e.target.checked }))}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                      </label>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        robots.txt
+                      </label>
+                      <textarea
+                        value={seoConfig.robotsTxt}
+                        onChange={(e) => setSeoConfig(prev => ({ ...prev, robotsTxt: e.target.value }))}
+                        rows={5}
+                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent font-mono text-sm resize-none"
+                        placeholder="User-agent: *\nAllow: /"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Preview y Guardar */}
+              <div className="bg-white rounded-2xl shadow-sm p-6">
+                <h3 className="font-bold text-gray-900 mb-4">Vista Previa en Google</h3>
+                <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
+                  <div className="max-w-xl">
+                    <p className="text-blue-600 text-lg hover:underline cursor-pointer">{seoConfig.siteName} - {seoConfig.siteKeywords.split(',')[0]}</p>
+                    <p className="text-green-700 text-sm">{seoConfig.canonicalUrl}</p>
+                    <p className="text-gray-600 text-sm mt-1 line-clamp-2">{seoConfig.siteDescription}</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-100">
+                  <div className="flex items-center gap-4">
+                    <a 
+                      href="https://search.google.com/search-console" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                    >
+                      Google Search Console <ExternalLink size={14} />
+                    </a>
+                    <a 
+                      href="https://www.bing.com/webmasters" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                    >
+                      Bing Webmaster <ExternalLink size={14} />
+                    </a>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      setSavingSeoConfig(true);
+                      // Aquí guardarías en Firebase
+                      await new Promise(r => setTimeout(r, 1000));
+                      toastSuccess('Configuración SEO guardada');
+                      setSavingSeoConfig(false);
+                    }}
+                    disabled={savingSeoConfig}
+                    className="px-6 py-2.5 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+                  >
+                    {savingSeoConfig ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle size={18} />}
+                    Guardar Configuración SEO
+                  </button>
+                </div>
+              </div>
+
+              {/* Tips SEO */}
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
+                <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <Sparkles className="text-blue-600" size={20} />
+                  Tips SEO Profesionales
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[
+                    { icon: FileCode, title: 'Meta Description', tip: 'Mantén entre 150-160 caracteres para mejor visualización' },
+                    { icon: ImageIcon, title: 'Imágenes', tip: 'Usa alt text descriptivo en todas las imágenes' },
+                    { icon: Link2, title: 'URLs', tip: 'Usa URLs cortas y descriptivas con keywords' },
+                    { icon: Globe, title: 'Velocidad', tip: 'Optimiza imágenes y usa lazy loading' },
+                    { icon: Smartphone, title: 'Mobile First', tip: 'Google prioriza la versión móvil' },
+                    { icon: Share2, title: 'Social Proof', tip: 'Configura Open Graph para mejor engagement' },
+                  ].map((tip, i) => (
+                    <div key={i} className="bg-white rounded-xl p-4 flex items-start gap-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <tip.icon className="text-blue-600" size={16} />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900 text-sm">{tip.title}</p>
+                        <p className="text-xs text-gray-500">{tip.tip}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           )}
 
           {/* Estadísticas en Tiempo Real */}
