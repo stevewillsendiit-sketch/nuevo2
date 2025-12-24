@@ -37,7 +37,7 @@ import { Usuario } from '@/types';
 
 interface PromocionesAdminPanelProps {
   usuarios: Usuario[];
-  user: { uid: string; email: string } | null;
+  user: { uid: string; email: string | null } | null;
   toastSuccess: (title: string, message?: string) => void;
   toastError: (title: string, message?: string) => void;
   toastWarning: (title: string, message?: string) => void;

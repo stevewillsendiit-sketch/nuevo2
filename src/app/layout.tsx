@@ -4,6 +4,9 @@ import Script from "next/script";
 import "./globals.css";
 import Providers from "@/components/Providers";
 
+// Forzar renderizado dinámico para toda la app (usa Auth context)
+export const dynamic = 'force-dynamic';
+
 const poppins = Poppins({ 
   subsets: ["latin"],
   weight: ['300', '400', '500', '600', '700'],
