@@ -94,7 +94,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'TU_CODIGO_DE_VERIFICACION_GOOGLE',
+    google: 'fKvn6xboFo9pxBABiatnTzxvBkv-IAFuKV7j3e1_fvo',
     yandex: 'TU_CODIGO_YANDEX',
   },
   category: 'marketplace',
