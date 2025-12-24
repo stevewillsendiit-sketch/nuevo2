@@ -1468,8 +1468,10 @@ const translations: Record<Language, Record<string, string>> = {
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>('ro');
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // Cargar idioma guardado - por defecto rumano
     if (typeof window !== 'undefined') {
       const savedLang = localStorage.getItem('vindel_language') as Language;

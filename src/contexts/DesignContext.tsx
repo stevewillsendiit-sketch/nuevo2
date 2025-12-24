@@ -64,19 +64,23 @@ export function DesignProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setMounted(true);
-    const savedDesign = localStorage.getItem('designStyle') as DesignStyle | null;
-    if (savedDesign && ['default', 'minimalista-noir', 'clasico-profesional'].includes(savedDesign)) {
-      setDesignState(savedDesign);
-    }
-    const savedVariant = localStorage.getItem('cardVariant') as CardVariant | null;
-    if (savedVariant) {
-      setCardVariantState(savedVariant);
+    if (typeof window !== 'undefined') {
+      const savedDesign = localStorage.getItem('designStyle') as DesignStyle | null;
+      if (savedDesign && ['default', 'minimalista-noir', 'clasico-profesional'].includes(savedDesign)) {
+        setDesignState(savedDesign);
+      }
+      const savedVariant = localStorage.getItem('cardVariant') as CardVariant | null;
+      if (savedVariant) {
+        setCardVariantState(savedVariant);
+      }
     }
   }, []);
 
   const setCardVariant = (variant: CardVariant) => {
     setCardVariantState(variant);
-    localStorage.setItem('cardVariant', variant);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cardVariant', variant);
+    }
   };
 
   useEffect(() => {
@@ -141,10 +145,14 @@ export function DesignProvider({ children }: { children: ReactNode }) {
 
   const setDesign = (newDesign: DesignStyle) => {
     setDesignState(newDesign);
-    localStorage.setItem('designStyle', newDesign);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('designStyle', newDesign);
+    }
     // Reset card variant when changing design
     setCardVariantState('default');
-    localStorage.setItem('cardVariant', 'default');
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cardVariant', 'default');
+    }
   };
 
   if (!mounted) {
