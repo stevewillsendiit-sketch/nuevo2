@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
@@ -21,6 +21,33 @@ interface ProvidersProps {
 }
 
 export default function Providers({ children }: ProvidersProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Renderizar solo el contenido básico durante SSR para evitar hidratación
+  if (!mounted) {
+    return (
+      <ThemeProvider>
+        <DesignProvider>
+          <LanguageProvider>
+            <AuthProvider>
+              <FavoritosProvider>
+                <ClientCategoryProvider>
+                  <div className="min-h-screen flex flex-col">
+                    <main className="flex-1">{children}</main>
+                  </div>
+                </ClientCategoryProvider>
+              </FavoritosProvider>
+            </AuthProvider>
+          </LanguageProvider>
+        </DesignProvider>
+      </ThemeProvider>
+    );
+  }
+
   return (
     <ThemeProvider>
       <DesignProvider>

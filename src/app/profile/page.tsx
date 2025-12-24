@@ -95,6 +95,14 @@ import StripePaymentModal from '@/components/StripePaymentModal';
 import VerificationModal from '@/components/VerificationModal';
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { 
+  validarCodigoDescuento, 
+  usarCodigoDescuento, 
+  getConfiguracionPromociones,
+  calcularPrecioConDescuento,
+  type CodigoDescuento,
+  type ConfiguracionPromociones 
+} from "@/lib/promociones.service";
 import { getPlanesUsuario, crearPlan, actualizarPlan, eliminarPlan, calcularDiasRestantes, type Plan } from "@/lib/planes.service";
 import { getConversacionesByUsuario, getMensajesByConversacion, enviarMensaje, marcarMensajesComoLeidos } from "@/lib/mensajes.service";
 import { getUsuario } from "@/lib/auth.service";
@@ -111,6 +119,7 @@ import {
   calcularPuntosPorAnuncios,
   calcularAnunciosConPuntos,
   comprarAnunciosConPuntos,
+  addCreditosManual,
   type Bonificacion,
   type CreditoUsuario,
   type ConfiguracionCreditos
@@ -256,6 +265,12 @@ export default function ProfilePage() {
   const [cardData, setCardData] = useState({ number: '', expiry: '', cvc: '', name: '' });
   const [processingPayment, setProcessingPayment] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'direct' | 'credits'>('direct');
+  
+  // Código de descuento
+  const [codigoDescuentoInput, setCodigoDescuentoInput] = useState('');
+  const [codigoDescuentoAplicado, setCodigoDescuentoAplicado] = useState<CodigoDescuento | null>(null);
+  const [validandoCodigo, setValidandoCodigo] = useState(false);
+  const [configuracionPromociones, setConfiguracionPromociones] = useState<ConfiguracionPromociones | null>(null);
   
   // Nuevo sistema de promoción por anuncio individual
   const [showPromoverAnuncioModal, setShowPromoverAnuncioModal] = useState(false);
@@ -565,6 +580,35 @@ export default function ProfilePage() {
       console.log('📦 No hay usuario logueado');
     }
   }, [user?.uid]);
+
+  // Cargar configuración de promociones
+  useEffect(() => {
+    getConfiguracionPromociones().then(setConfiguracionPromociones);
+  }, []);
+
+  // Función para validar código de descuento
+  const handleValidarCodigoDescuento = async () => {
+    if (!codigoDescuentoInput.trim()) return;
+    
+    setValidandoCodigo(true);
+    try {
+      const codigo = await validarCodigoDescuento(codigoDescuentoInput.trim());
+      if (codigo) {
+        // Verificar que aplica a recargas
+        if (codigo.aplicaA === 'recargas' || codigo.aplicaA === 'todo') {
+          setCodigoDescuentoAplicado(codigo);
+          toastSuccess('¡Código válido!', `${codigo.tipo === 'porcentaje' ? `${codigo.valor}% de descuento` : `${codigo.valor}€ de descuento`}`);
+        } else {
+          toastError('Código no válido', 'Este código solo aplica a promociones de anuncios');
+        }
+      } else {
+        toastError('Código no válido', 'El código no existe, ha expirado o ya ha sido usado');
+      }
+    } catch (error) {
+      toastError('Error', 'No se pudo validar el código');
+    }
+    setValidandoCodigo(false);
+  };
 
   // Cargar conversaciones en tiempo real
   useEffect(() => {
@@ -5928,7 +5972,7 @@ export default function ProfilePage() {
 
         {/* Modal Recargar Créditos */}
         {showRecargarModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => { setShowRecargarModal(false); setSelectedRechargeAmount(null); }}>
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => { setShowRecargarModal(false); setSelectedRechargeAmount(null); setCodigoDescuentoInput(''); setCodigoDescuentoAplicado(null); }}>
             <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
               {/* Header */}
               <div className="bg-gradient-to-br from-emerald-500 to-cyan-600 p-8 text-center relative overflow-hidden">
@@ -5950,6 +5994,7 @@ export default function ProfilePage() {
                     
                     <div className="grid grid-cols-2 gap-3 mb-6">
                       {[
+                        { amount: 1, bonus: 0 },
                         { amount: 10, bonus: 0 },
                         { amount: 25, bonus: 2 },
                         { amount: 50, bonus: 5 },
@@ -5965,7 +6010,9 @@ export default function ProfilePage() {
                               +{option.bonus}€ gratis
                             </span>
                           )}
-                          <p className="text-2xl font-black text-gray-900 group-hover:text-emerald-600">{option.amount}€</p>
+                          <p className="text-2xl font-black text-gray-900 group-hover:text-emerald-600">
+                            {option.amount < 1 ? option.amount.toFixed(2).replace('.', ',') : option.amount}€
+                          </p>
                           <p className="text-xs text-gray-500">
                             {option.bonus > 0 ? `Primești ${option.amount + option.bonus}€` : 'Fără bonus'}
                           </p>
@@ -5976,7 +6023,7 @@ export default function ProfilePage() {
                 ) : (
                   <>
                     {/* Resumen de selección */}
-                    <div className="bg-gradient-to-r from-emerald-50 to-cyan-50 rounded-xl p-4 mb-6 border border-emerald-200">
+                    <div className="bg-gradient-to-r from-emerald-50 to-cyan-50 rounded-xl p-4 mb-4 border border-emerald-200">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-sm text-gray-600">Sumă selectată</p>
@@ -5992,6 +6039,53 @@ export default function ProfilePage() {
                           <X size={20} />
                         </button>
                       </div>
+                    </div>
+
+                    {/* Código de descuento */}
+                    <div className="mb-4">
+                      <p className="text-sm text-gray-600 mb-2">Ai un cod de reducere?</p>
+                      {!codigoDescuentoAplicado ? (
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={codigoDescuentoInput}
+                            onChange={(e) => setCodigoDescuentoInput(e.target.value.toUpperCase())}
+                            placeholder="Introdu codul"
+                            className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm font-mono uppercase"
+                          />
+                          <button
+                            onClick={handleValidarCodigoDescuento}
+                            disabled={validandoCodigo || !codigoDescuentoInput.trim()}
+                            className="px-4 py-2 bg-amber-500 text-white rounded-lg font-medium text-sm hover:bg-amber-600 disabled:opacity-50 flex items-center gap-2"
+                          >
+                            {validandoCodigo ? <Loader2 size={16} className="animate-spin" /> : <Tag size={16} />}
+                            Aplică
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <Tag className="text-amber-600" size={18} />
+                            <div>
+                              <p className="font-mono font-bold text-amber-800">{codigoDescuentoAplicado.codigo}</p>
+                              <p className="text-xs text-amber-600">
+                                {codigoDescuentoAplicado.tipo === 'porcentaje' 
+                                  ? `${codigoDescuentoAplicado.valor}% reducere`
+                                  : `${codigoDescuentoAplicado.valor}€ reducere`}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => {
+                              setCodigoDescuentoAplicado(null);
+                              setCodigoDescuentoInput('');
+                            }}
+                            className="p-1 hover:bg-amber-100 rounded"
+                          >
+                            <X size={18} className="text-amber-600" />
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     {/* Métodos de pago activos */}
@@ -6107,16 +6201,72 @@ export default function ProfilePage() {
             setShowCardForm(false);
             setCardData({ number: '', expiry: '', cvc: '', name: '' });
           }}
-          amount={selectedRechargeAmount?.amount || 0}
+          amount={(() => {
+            const baseAmount = selectedRechargeAmount?.amount || 0;
+            if (codigoDescuentoAplicado && configuracionPromociones) {
+              const { precioFinal } = calcularPrecioConDescuento(baseAmount, configuracionPromociones, codigoDescuentoAplicado);
+              return Math.max(0.5, precioFinal); // Mínimo 0.50€
+            }
+            return baseAmount;
+          })()}
           bonus={selectedRechargeAmount?.bonus || 0}
           userId={user?.uid || ''}
           userEmail={user?.email || ''}
-          onSuccess={() => {
-            setCreditos(prev => prev + (selectedRechargeAmount?.amount || 0) + (selectedRechargeAmount?.bonus || 0));
+          onSuccess={async () => {
+            // Los créditos que recibe son los originales (sin el descuento)
+            const totalCreditos = (selectedRechargeAmount?.amount || 0) + (selectedRechargeAmount?.bonus || 0);
+            const montoOriginal = selectedRechargeAmount?.amount || 0;
+            
+            // Calcular lo que realmente pagó
+            let montoPagado = montoOriginal;
+            if (codigoDescuentoAplicado && configuracionPromociones) {
+              const { precioFinal } = calcularPrecioConDescuento(montoOriginal, configuracionPromociones, codigoDescuentoAplicado);
+              montoPagado = Math.max(0.5, precioFinal);
+              
+              // Marcar el código como usado
+              if (codigoDescuentoAplicado.id) {
+                await usarCodigoDescuento(codigoDescuentoAplicado.id);
+              }
+            }
+            
+            // 1. Guardar créditos en Firebase
+            try {
+              const resultado = await addCreditosManual(
+                user?.uid || '', 
+                totalCreditos, 
+                `Recarga de ${montoOriginal}€${selectedRechargeAmount?.bonus ? ` + ${selectedRechargeAmount.bonus}€ bonus` : ''}${codigoDescuentoAplicado ? ` (código: ${codigoDescuentoAplicado.codigo})` : ''}`
+              );
+              
+              if (resultado.success) {
+                // 2. Crear factura
+                await crearFactura({
+                  userId: user?.uid || '',
+                  clienteNombre: usuario?.nombre || user?.displayName || 'Cliente',
+                  clienteEmail: user?.email || '',
+                  concepto: 'Recarga de créditos',
+                  descripcion: `Recarga${codigoDescuentoAplicado ? ` con código ${codigoDescuentoAplicado.codigo}` : ''}: ${totalCreditos}€ en créditos${montoPagado !== montoOriginal ? ` (pagado ${montoPagado.toFixed(2)}€)` : ''}`,
+                  cantidad: 1,
+                  precioUnitario: montoPagado,
+                  metodoPago: 'tarjeta',
+                });
+                
+                // 3. Actualizar estado local
+                setCreditos(resultado.nuevoSaldo || totalCreditos);
+                toastSuccess(`S-au adăugat ${totalCreditos}€ în contul tău!`);
+              } else {
+                toastError('Eroare la adăugarea creditelor. Contactează suportul.');
+              }
+            } catch (error) {
+              console.error('Error al procesar pago:', error);
+              toastError('Eroare la procesarea plății. Contactează suportul.');
+            }
+            
             setShowCardForm(false);
             setShowRecargarModal(false);
             setSelectedRechargeAmount(null);
             setCardData({ number: '', expiry: '', cvc: '', name: '' });
+            setCodigoDescuentoInput('');
+            setCodigoDescuentoAplicado(null);
           }}
         />
 

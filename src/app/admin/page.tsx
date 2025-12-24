@@ -64,6 +64,7 @@ import {
   toggleJuegoActivo,
   type Bonificacion,
 } from '@/lib/bonificaciones.service';
+import PromocionesAdminPanel from '@/components/PromocionesAdminPanel';
 import {
   getPaymentConfig,
   updatePaymentConfig,
@@ -118,6 +119,7 @@ import {
   MapPin,
   Package,
   CreditCard,
+  Euro,
   PieChart,
   Calendar,
   ArrowUpRight,
@@ -218,6 +220,8 @@ export default function AdminPage() {
   const [motivoCreditos, setMotivoCreditos] = useState('');
   const [creditosParaTodos, setCreditosParaTodos] = useState(false);
   const [dandoCreditosATodos, setDandoCreditosATodos] = useState(false);
+  const [modoCreditos, setModoCreditos] = useState<'puntos' | 'euros'>('euros'); // Nuevo: euros por defecto
+  const [cantidadEuros, setCantidadEuros] = useState(1); // Nuevo: cantidad en euros
   const [configCreditos, setConfigCreditos] = useState({
     creditosPorDia: 5,
     valorPuntosEnEuros: 0.10,
@@ -737,7 +741,7 @@ export default function AdminPage() {
               { id: 'promociones', label: 'Promociones', icon: Sparkles, badge: promocionesActivas.length > 0 ? promocionesActivas.length : undefined },
               { id: 'extras', label: 'Anuncios Extra', icon: Package },
               { id: 'ingresos', label: 'Ingresos', icon: DollarSign },
-              { id: 'bonificaciones', label: 'Bonificaciones', icon: Gift },
+              { id: 'bonificaciones', label: 'Créditos y Descuentos', icon: Gift },
             ].map((item) => (
               <button
                 key={item.id}
@@ -2984,426 +2988,15 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* Bonificaciones */}
+          {/* Bonificaciones / Promociones Admin */}
           {activeTab === 'bonificaciones' && (
-            <div className="space-y-6">
-              {/* Header con Stats */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                <div className="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-6 text-white">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-emerald-100 text-sm">Bonificaciones Activas</p>
-                      <p className="text-3xl font-bold mt-1">
-                        {bonificaciones.filter(b => b.estado === 'activa').length}
-                      </p>
-                    </div>
-                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                      <Gift size={24} />
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-white rounded-2xl p-6 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-gray-500 text-sm">Días Regalados</p>
-                      <p className="text-3xl font-bold text-blue-600 mt-1">
-                        {bonificaciones.filter(b => b.tipo === 'dias').reduce((acc, b) => acc + b.cantidad, 0)}
-                      </p>
-                    </div>
-                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                      <Calendar size={24} className="text-blue-600" />
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-white rounded-2xl p-6 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-gray-500 text-sm">Anuncios Regalados</p>
-                      <p className="text-3xl font-bold text-purple-600 mt-1">
-                        {bonificaciones.filter(b => b.tipo === 'anuncios').reduce((acc, b) => acc + b.cantidad, 0)}
-                      </p>
-                    </div>
-                    <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                      <FileText size={24} className="text-purple-600" />
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-white rounded-2xl p-6 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-gray-500 text-sm">Promos Gratis</p>
-                      <p className="text-3xl font-bold text-amber-600 mt-1">
-                        {bonificaciones.filter(b => b.tipo === 'promocion_gratis').length}
-                      </p>
-                    </div>
-                    <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                      <Sparkles size={24} className="text-amber-600" />
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-white rounded-2xl p-6 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-gray-500 text-sm">Usuarios Beneficiados</p>
-                      <p className="text-3xl font-bold text-pink-600 mt-1">
-                        {new Set(bonificaciones.map(b => b.usuarioId)).size}
-                      </p>
-                    </div>
-                    <div className="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center">
-                      <Users size={24} className="text-pink-600" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Botones crear bonificación y dar puntos */}
-              <div className="flex flex-wrap justify-between items-center gap-4">
-                {/* Info de puntos diarios */}
-                <div className="flex items-center gap-4">
-                  <div className={`rounded-xl p-4 border flex items-center gap-4 ${configCreditos.juegoActivo ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200' : 'bg-gray-100 border-gray-300'}`}>
-                    <span className="text-2xl">{configCreditos.juegoActivo ? '💰' : '🔒'}</span>
-                    <div>
-                      <p className={`text-sm font-semibold ${configCreditos.juegoActivo ? 'text-amber-800' : 'text-gray-600'}`}>
-                        Configuración de Puntos {!configCreditos.juegoActivo && <span className="text-red-500 ml-1">(DESACTIVADO)</span>}
-                      </p>
-                      <p className={`text-xs ${configCreditos.juegoActivo ? 'text-amber-600' : 'text-gray-500'}`}>
-                        <span className="font-bold">{configCreditos.creditosPorDia}</span> pts/día • 
-                        <span className="font-bold"> 1 pt = {configCreditos.valorPuntosEnEuros.toFixed(2)}€</span> • 
-                        <span className="font-bold"> 1 anuncio = {Math.ceil(configCreditos.precioAnuncioEnEuros / configCreditos.valorPuntosEnEuros)} pts</span>
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Botón de activar/desactivar juego */}
-                  <button
-                    onClick={async () => {
-                      setToggleandoJuego(true);
-                      const nuevoEstado = !configCreditos.juegoActivo;
-                      const success = await toggleJuegoActivo(nuevoEstado);
-                      if (success) {
-                        setConfigCreditos(prev => ({ ...prev, juegoActivo: nuevoEstado }));
-                        if (nuevoEstado) {
-                          toastSuccess('🎮 Juego Activado', 'Los usuarios ahora pueden ver y reclamar puntos');
-                        } else {
-                          toastWarning('🔒 Juego Desactivado', 'La sección de puntos está oculta para los usuarios');
-                        }
-                      } else {
-                        toastError('Error', 'No se pudo cambiar el estado del juego');
-                      }
-                      setToggleandoJuego(false);
-                    }}
-                    disabled={toggleandoJuego}
-                    className={`flex items-center gap-2 px-4 py-3 rounded-xl font-semibold transition-all shadow-lg ${
-                      configCreditos.juegoActivo
-                        ? 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-red-200'
-                        : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 shadow-green-200'
-                    } disabled:opacity-50`}
-                  >
-                    {toggleandoJuego ? (
-                      <Loader2 size={18} className="animate-spin" />
-                    ) : configCreditos.juegoActivo ? (
-                      <>
-                        <XCircle size={18} />
-                        Desactivar
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle size={18} />
-                        Activar
-                      </>
-                    )}
-                  </button>
-                </div>
-                
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setShowDarCreditos(true)}
-                    className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg shadow-amber-200"
-                  >
-                    <span>🪙</span>
-                    Dar Créditos
-                  </button>
-                  <button
-                    onClick={() => setShowCrearBonificacion(true)}
-                    className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl font-semibold hover:from-emerald-600 hover:to-green-700 transition-all shadow-lg shadow-emerald-200"
-                  >
-                    <Gift size={20} />
-                    Nueva Bonificación
-                  </button>
-                </div>
-              </div>
-
-              {/* Filtros */}
-              <div className="bg-white rounded-2xl shadow-sm p-6">
-                <div className="flex flex-wrap items-center gap-4">
-                  <div className="flex-1 min-w-[200px]">
-                    <label className="text-sm text-gray-500 block mb-1">Buscar usuario</label>
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                      <input
-                        type="text"
-                        placeholder="Nombre o email..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-sm text-gray-500 block mb-1">Tipo</label>
-                    <select
-                      value={filterBonificacion}
-                      onChange={(e) => setFilterBonificacion(e.target.value)}
-                      className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500"
-                    >
-                      <option value="todos">Todos los tipos</option>
-                      <option value="dias">Días Extra</option>
-                      <option value="anuncios">Anuncios Extra</option>
-                      <option value="promocion_gratis">Promoción Gratis</option>
-                      <option value="descuento">Descuento</option>
-                      <option value="regalo">Regalo Especial</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-sm text-gray-500 block mb-1">Estado</label>
-                    <select
-                      value={filterEstadoBonificacion}
-                      onChange={(e) => setFilterEstadoBonificacion(e.target.value)}
-                      className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500"
-                    >
-                      <option value="todos">Todos</option>
-                      <option value="activa">Activas</option>
-                      <option value="usada">Usadas</option>
-                      <option value="expirada">Expiradas</option>
-                      <option value="cancelada">Canceladas</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Tabla de Bonificaciones */}
-              <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-gray-100">
-                  <h3 className="font-bold text-gray-900">Historial de Bonificaciones</h3>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50 border-b border-gray-200">
-                      <tr>
-                        <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Usuario</th>
-                        <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Tipo</th>
-                        <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Cantidad</th>
-                        <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Motivo</th>
-                        <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Fecha</th>
-                        <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Expira</th>
-                        <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Estado</th>
-                        <th className="text-center px-6 py-4 text-sm font-semibold text-gray-600">Acciones</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {bonificaciones
-                        .filter(b => {
-                          const matchTipo = filterBonificacion === 'todos' || b.tipo === filterBonificacion;
-                          const matchEstado = filterEstadoBonificacion === 'todos' || b.estado === filterEstadoBonificacion;
-                          const matchSearch = !searchTerm || 
-                            b.usuarioNombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            b.usuarioEmail?.toLowerCase().includes(searchTerm.toLowerCase());
-                          return matchTipo && matchEstado && matchSearch;
-                        })
-                        .map((bonif) => (
-                          <tr key={bonif.id} className={`hover:bg-gray-50 ${bonif.paraTodos ? 'bg-purple-50/30' : ''}`}>
-                            <td className="px-6 py-4">
-                              {bonif.paraTodos ? (
-                                <div className="flex items-center gap-3">
-                                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                                    <Users className="text-white" size={18} />
-                                  </div>
-                                  <div>
-                                    <div className="flex items-center gap-2">
-                                      <p className="font-medium text-gray-900">Todos los usuarios</p>
-                                      <span className="px-2 py-0.5 bg-purple-100 text-purple-600 text-[10px] font-bold rounded-full">
-                                        MASIVA
-                                      </span>
-                                    </div>
-                                    <p className="text-xs text-gray-500">{bonif.usuariosBeneficiados} usuarios beneficiados</p>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="flex items-center gap-3">
-                                  <div className="w-10 h-10 bg-gradient-to-br from-emerald-100 to-green-100 rounded-full flex items-center justify-center">
-                                    <span className="font-bold text-emerald-600">
-                                      {bonif.usuarioNombre?.charAt(0).toUpperCase() || '?'}
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <p className="font-medium text-gray-900">{bonif.usuarioNombre}</p>
-                                    <p className="text-xs text-gray-500">{bonif.usuarioEmail}</p>
-                                  </div>
-                                </div>
-                              )}
-                            </td>
-                            <td className="px-6 py-4">
-                              <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full ${
-                                bonif.tipo === 'dias' ? 'bg-blue-100 text-blue-600' :
-                                bonif.tipo === 'anuncios' ? 'bg-purple-100 text-purple-600' :
-                                bonif.tipo === 'promocion_gratis' ? 'bg-pink-100 text-pink-600' :
-                                bonif.tipo === 'descuento' ? 'bg-green-100 text-green-600' :
-                                'bg-indigo-100 text-indigo-600'
-                              }`}>
-                                {bonif.tipo === 'dias' && <Calendar size={12} />}
-                                {bonif.tipo === 'anuncios' && <FileText size={12} />}
-                                {bonif.tipo === 'promocion_gratis' && <Sparkles size={12} />}
-                                {bonif.tipo === 'descuento' && <DollarSign size={12} />}
-                                {bonif.tipo === 'regalo' && <Gift size={12} />}
-                                {bonif.tipo === 'dias' ? 'Días Extra' :
-                                 bonif.tipo === 'anuncios' ? 'Anuncios Extra' :
-                                 bonif.tipo === 'promocion_gratis' ? 'Promo Gratis' :
-                                 bonif.tipo === 'descuento' ? 'Descuento' : 'Regalo'}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4">
-                              <span className="font-bold text-gray-900">
-                                {bonif.tipo === 'descuento' ? `${bonif.porcentajeDescuento}%` : 
-                                 bonif.tipo === 'promocion_gratis' ? bonif.planTipo || 'Promoción' :
-                                 `+${bonif.cantidad}`}
-                              </span>
-                              <span className="text-sm text-gray-500 ml-1">
-                                {bonif.tipo === 'dias' ? 'días' : 
-                                 bonif.tipo === 'anuncios' ? 'anuncios' : ''}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4">
-                              <p className="text-sm text-gray-900 max-w-[200px] truncate" title={bonif.motivo}>
-                                {bonif.motivo}
-                              </p>
-                              {bonif.codigoPromo && (
-                                <p className="text-xs text-emerald-600 font-mono mt-1">
-                                  Código: {bonif.codigoPromo}
-                                </p>
-                              )}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-500">
-                              {bonif.fechaCreacion instanceof Date 
-                                ? bonif.fechaCreacion.toLocaleDateString() 
-                                : (bonif.fechaCreacion as { toDate?: () => Date })?.toDate?.()?.toLocaleDateString() || 'N/A'}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-500">
-                              {bonif.fechaExpiracion 
-                                ? (bonif.fechaExpiracion instanceof Date 
-                                    ? bonif.fechaExpiracion.toLocaleDateString() 
-                                    : (bonif.fechaExpiracion as { toDate?: () => Date })?.toDate?.()?.toLocaleDateString() || 'N/A')
-                                : 'Sin expiración'}
-                            </td>
-                            <td className="px-6 py-4">
-                              <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                                bonif.estado === 'activa' ? 'bg-green-100 text-green-600' :
-                                bonif.estado === 'usada' ? 'bg-blue-100 text-blue-600' :
-                                bonif.estado === 'expirada' ? 'bg-gray-100 text-gray-600' :
-                                'bg-red-100 text-red-600'
-                              }`}>
-                                {bonif.estado.charAt(0).toUpperCase() + bonif.estado.slice(1)}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4">
-                              <div className="flex items-center justify-center gap-2">
-                                <button
-                                  onClick={() => {
-                                    setSelectedItem(bonif);
-                                    // Ver detalles
-                                  }}
-                                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                                  title="Ver detalles"
-                                >
-                                  <Eye size={16} className="text-gray-500" />
-                                </button>
-                                {bonif.estado === 'activa' && (
-                                  <button
-                                    onClick={async () => {
-                                      if (confirm('¿Cancelar esta bonificación?')) {
-                                        setBonificaciones(prev => 
-                                          prev.map(b => b.id === bonif.id ? {...b, estado: 'cancelada'} : b)
-                                        );
-                                      }
-                                    }}
-                                    className="p-2 hover:bg-red-50 rounded-lg transition-colors"
-                                    title="Cancelar"
-                                  >
-                                    <XCircle size={16} className="text-red-500" />
-                                  </button>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                </div>
-                {bonificaciones.length === 0 && !loadingData && (
-                  <div className="text-center py-12">
-                    <Gift className="mx-auto mb-4 text-gray-300" size={48} />
-                    <p className="text-gray-500 mb-4">No hay bonificaciones registradas</p>
-                    <button
-                      onClick={() => setShowCrearBonificacion(true)}
-                      className="text-emerald-600 font-medium hover:underline"
-                    >
-                      Crear primera bonificación
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Guía de tipos de bonificación */}
-              <div className="bg-white rounded-2xl shadow-sm p-6">
-                <h3 className="font-bold text-gray-900 mb-4">Tipos de Bonificación Disponibles</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                        <Calendar className="text-white" size={20} />
-                      </div>
-                      <h4 className="font-semibold text-blue-900">Días Extra</h4>
-                    </div>
-                    <p className="text-sm text-blue-700">Extiende la duración de promociones activas del usuario.</p>
-                  </div>
-                  <div className="p-4 bg-purple-50 rounded-xl border border-purple-100">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
-                        <FileText className="text-white" size={20} />
-                      </div>
-                      <h4 className="font-semibold text-purple-900">Anuncios Extra</h4>
-                    </div>
-                    <p className="text-sm text-purple-700">Permite al usuario publicar más anuncios gratuitos.</p>
-                  </div>
-                  <div className="p-4 bg-pink-50 rounded-xl border border-pink-100">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 bg-pink-500 rounded-lg flex items-center justify-center">
-                        <Sparkles className="text-white" size={20} />
-                      </div>
-                      <h4 className="font-semibold text-pink-900">Promoción Gratis</h4>
-                    </div>
-                    <p className="text-sm text-pink-700">Regala una promoción (Destacado, Premium o VIP) para un anuncio.</p>
-                  </div>
-                  <div className="p-4 bg-green-50 rounded-xl border border-green-100">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
-                        <DollarSign className="text-white" size={20} />
-                      </div>
-                      <h4 className="font-semibold text-green-900">Descuento</h4>
-                    </div>
-                    <p className="text-sm text-green-700">Otorga un código de descuento para futuras promociones.</p>
-                  </div>
-                  <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 bg-indigo-500 rounded-lg flex items-center justify-center">
-                        <Gift className="text-white" size={20} />
-                      </div>
-                      <h4 className="font-semibold text-indigo-900">Regalo Especial</h4>
-                    </div>
-                    <p className="text-sm text-indigo-700">Bonificación personalizada para ocasiones especiales.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <PromocionesAdminPanel
+              usuarios={usuarios}
+              user={user}
+              toastSuccess={toastSuccess}
+              toastError={toastError}
+              toastWarning={toastWarning}
+            />
           )}
 
           {/* Modal Dar Créditos */}
@@ -3561,16 +3154,96 @@ export default function AdminPage() {
                         </div>
                         <div>
                           <p className="font-bold text-amber-900 text-lg">{usuarios.length} usuarios</p>
-                          <p className="text-sm text-amber-700">Recibirán los puntos seleccionados</p>
+                          <p className="text-sm text-amber-700">Recibirán los créditos seleccionados</p>
                         </div>
                       </div>
                     </div>
                   )}
                   
-                  {/* Cantidad de créditos */}
+                  {/* Selector de modo: Euros o Puntos */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Cantidad de Créditos
+                      Tipo de Crédito
+                    </label>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setModoCreditos('euros')}
+                        className={`flex-1 p-4 rounded-xl border-2 transition-all flex items-center gap-3 ${
+                          modoCreditos === 'euros'
+                            ? 'border-emerald-500 bg-emerald-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                          modoCreditos === 'euros' ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-500'
+                        }`}>
+                          <Euro size={20} />
+                        </div>
+                        <div className="text-left">
+                          <p className={`font-semibold ${modoCreditos === 'euros' ? 'text-emerald-700' : 'text-gray-700'}`}>
+                            Euros (€)
+                          </p>
+                          <p className="text-xs text-gray-500">Créditos directos en euros</p>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => setModoCreditos('puntos')}
+                        className={`flex-1 p-4 rounded-xl border-2 transition-all flex items-center gap-3 ${
+                          modoCreditos === 'puntos'
+                            ? 'border-amber-500 bg-amber-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                          modoCreditos === 'puntos' ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-500'
+                        }`}>
+                          <span className="text-lg">🪙</span>
+                        </div>
+                        <div className="text-left">
+                          <p className={`font-semibold ${modoCreditos === 'puntos' ? 'text-amber-700' : 'text-gray-700'}`}>
+                            Puntos
+                          </p>
+                          <p className="text-xs text-gray-500">{configCreditos.valorPuntosEnEuros}€ por punto</p>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Cantidad según modo */}
+                  {modoCreditos === 'euros' ? (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Cantidad en Euros (€)
+                      </label>
+                      <div className="flex gap-2 mb-2">
+                        {[1, 5, 10, 25, 50].map(cantidad => (
+                          <button
+                            key={cantidad}
+                            onClick={() => setCantidadEuros(cantidad)}
+                            className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                              cantidadEuros === cantidad
+                                ? 'bg-emerald-500 text-white'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                          >
+                            {cantidad}€
+                          </button>
+                        ))}
+                      </div>
+                      <input
+                        type="number"
+                        value={cantidadEuros}
+                        onChange={(e) => setCantidadEuros(parseFloat(e.target.value) || 0)}
+                        min="0.01"
+                        step="0.01"
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        placeholder="Cantidad personalizada en euros..."
+                      />
+                    </div>
+                  ) : (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Cantidad de Puntos
                     </label>
                     <div className="flex gap-2">
                       {[10, 25, 50, 100, 200].map(cantidad => (
@@ -3596,6 +3269,7 @@ export default function AdminPage() {
                       placeholder="O escribe una cantidad personalizada..."
                     />
                   </div>
+                  )}
                   
                   {/* Motivo */}
                   <div>
@@ -3612,6 +3286,20 @@ export default function AdminPage() {
                   </div>
                   
                   {/* Resumen */}
+                  {modoCreditos === 'euros' ? (
+                    <div className="bg-emerald-50 rounded-xl p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-emerald-800 font-medium">Euros a añadir:</span>
+                        <span className="text-2xl font-bold text-emerald-600 flex items-center gap-1">
+                          <Euro size={20} /> {cantidadEuros.toFixed(2)}€ {creditosParaTodos && <span className="text-sm font-normal">x {usuarios.length} usuarios</span>}
+                        </span>
+                      </div>
+                      <div className="text-xs text-emerald-600 space-y-1">
+                        <p>💰 Se añadirán <span className="font-bold">{cantidadEuros.toFixed(2)}€</span> al saldo del usuario</p>
+                        {creditosParaTodos && <p>📊 Total: <span className="font-bold">{(cantidadEuros * usuarios.length).toFixed(2)}€</span></p>}
+                      </div>
+                    </div>
+                  ) : (
                   <div className="bg-amber-50 rounded-xl p-4">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-amber-800 font-medium">Puntos a añadir:</span>
@@ -3625,6 +3313,7 @@ export default function AdminPage() {
                       <p>📅 = <span className="font-bold">{Math.ceil(cantidadCreditos / configCreditos.creditosPorDia)}</span> días de recogida diaria ({configCreditos.creditosPorDia} pts/día)</p>
                     </div>
                   </div>
+                  )}
                 </div>
                 
                 {/* Botones */}
@@ -3650,9 +3339,11 @@ export default function AdminPage() {
                       }
                       
                       try {
-                        const valorEnEuros = (cantidadCreditos * configCreditos.valorPuntosEnEuros).toFixed(2);
-                        const anunciosEquivalentes = Math.floor((cantidadCreditos * configCreditos.valorPuntosEnEuros) / configCreditos.precioAnuncioEnEuros);
-                        const diasEquivalentes = Math.ceil(cantidadCreditos / configCreditos.creditosPorDia);
+                        // Calcular cantidad según modo
+                        const cantidadFinal = modoCreditos === 'euros' ? cantidadEuros : cantidadCreditos;
+                        const valorEnEuros = modoCreditos === 'euros' 
+                          ? cantidadEuros.toFixed(2)
+                          : (cantidadCreditos * configCreditos.valorPuntosEnEuros).toFixed(2);
 
                         // DAR A TODOS LOS USUARIOS
                         if (creditosParaTodos) {
@@ -3665,8 +3356,8 @@ export default function AdminPage() {
                             try {
                               const resultado = await addCreditosManual(
                                 usuario.id,
-                                cantidadCreditos,
-                                motivoCreditos || 'Puntos masivos por admin'
+                                cantidadFinal,
+                                motivoCreditos || (modoCreditos === 'euros' ? 'Euros añadidos por admin' : 'Puntos masivos por admin')
                               );
                               if (resultado.success) {
                                 exitosos++;
@@ -3681,18 +3372,25 @@ export default function AdminPage() {
                           await logAdminAction(
                             user?.uid || '',
                             user?.email || '',
-                            'dar_puntos_masivo',
+                            modoCreditos === 'euros' ? 'dar_euros_masivo' : 'dar_puntos_masivo',
                             'usuario',
                             'todos',
-                            `${cantidadCreditos} puntos (${valorEnEuros}€) dados a ${exitosos} usuarios. Total: ${(cantidadCreditos * configCreditos.valorPuntosEnEuros * exitosos).toFixed(2)}€`
+                            modoCreditos === 'euros'
+                              ? `${cantidadEuros}€ dados a ${exitosos} usuarios. Total: ${(cantidadEuros * exitosos).toFixed(2)}€`
+                              : `${cantidadCreditos} puntos (${valorEnEuros}€) dados a ${exitosos} usuarios.`
                           );
                           
                           setDandoCreditosATodos(false);
-                          toastPoints(`¡Puntos dados a ${exitosos} usuarios!`, `${cantidadCreditos} pts c/u • Total: ${(cantidadCreditos * configCreditos.valorPuntosEnEuros * exitosos).toFixed(2)}€ • = ${anunciosEquivalentes} anuncios${fallidos > 0 ? ` • ${fallidos} fallidos` : ''}`);
+                          if (modoCreditos === 'euros') {
+                            toastSuccess(`¡${cantidadEuros}€ dados a ${exitosos} usuarios!`);
+                          } else {
+                            toastPoints(`¡Puntos dados a ${exitosos} usuarios!`, `${cantidadCreditos} pts c/u`);
+                          }
                           
                           setShowDarCreditos(false);
                           setCreditosParaTodos(false);
                           setCantidadCreditos(50);
+                          setCantidadEuros(1);
                           setMotivoCreditos('');
                           return;
                         }
@@ -3700,26 +3398,33 @@ export default function AdminPage() {
                         // DAR A UN USUARIO ESPECÍFICO
                         const resultado = await addCreditosManual(
                           creditosUsuarioSeleccionado!.id,
-                          cantidadCreditos,
-                          motivoCreditos || 'Puntos añadidos por admin'
+                          cantidadFinal,
+                          motivoCreditos || (modoCreditos === 'euros' ? 'Euros añadidos por admin' : 'Puntos añadidos por admin')
                         );
                         
                         if (resultado.success) {
                           await logAdminAction(
                             user?.uid || '',
                             user?.email || '',
-                            'dar_puntos',
+                            modoCreditos === 'euros' ? 'dar_euros' : 'dar_puntos',
                             'usuario',
                             creditosUsuarioSeleccionado!.id,
-                            `${cantidadCreditos} puntos (${valorEnEuros}€) añadidos a ${creditosUsuarioSeleccionado!.nombre}. Nuevo saldo: ${resultado.nuevoSaldo}`
+                            modoCreditos === 'euros'
+                              ? `${cantidadEuros}€ añadidos a ${creditosUsuarioSeleccionado!.nombre}. Nuevo saldo: ${resultado.nuevoSaldo}€`
+                              : `${cantidadCreditos} puntos (${valorEnEuros}€) añadidos a ${creditosUsuarioSeleccionado!.nombre}. Nuevo saldo: ${resultado.nuevoSaldo}`
                           );
                           
-                          toastPoints(`¡${cantidadCreditos} puntos añadidos!`, `A ${creditosUsuarioSeleccionado!.nombre} • Valor: ${valorEnEuros}€ • Saldo: ${resultado.nuevoSaldo} pts`);
+                          if (modoCreditos === 'euros') {
+                            toastSuccess(`¡${cantidadEuros}€ añadidos a ${creditosUsuarioSeleccionado!.nombre}! Nuevo saldo: ${resultado.nuevoSaldo?.toFixed(2)}€`);
+                          } else {
+                            toastPoints(`¡${cantidadCreditos} puntos añadidos!`, `A ${creditosUsuarioSeleccionado!.nombre} • Saldo: ${resultado.nuevoSaldo} pts`);
+                          }
                           
                           setShowDarCreditos(false);
                           setCreditosUsuarioSeleccionado(null);
                           setCreditosUsuarioSearch('');
                           setCantidadCreditos(50);
+                          setCantidadEuros(1);
                           setMotivoCreditos('');
                         } else {
                           toastError('Error', 'No se pudieron añadir los créditos');
@@ -3730,17 +3435,26 @@ export default function AdminPage() {
                         toastError('Error', 'No se pudieron añadir los créditos');
                       }
                     }}
-                    disabled={(!creditosParaTodos && !creditosUsuarioSeleccionado) || cantidadCreditos <= 0 || dandoCreditosATodos}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold hover:from-amber-600 hover:to-orange-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={(!creditosParaTodos && !creditosUsuarioSeleccionado) || (modoCreditos === 'euros' ? cantidadEuros <= 0 : cantidadCreditos <= 0) || dandoCreditosATodos}
+                    className={`flex-1 px-6 py-3 ${modoCreditos === 'euros' ? 'bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600' : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600'} text-white rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {dandoCreditosATodos ? (
                       <span className="flex items-center justify-center gap-2">
                         <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                        Dando puntos...
+                        {modoCreditos === 'euros' ? 'Añadiendo euros...' : 'Dando puntos...'}
                       </span>
                     ) : (
                       <span className="flex items-center justify-center gap-2">
-                        🪙 {creditosParaTodos ? `Dar a ${usuarios.length} usuarios` : `Dar ${cantidadCreditos} Créditos`}
+                        {modoCreditos === 'euros' ? (
+                          <>
+                            <Euro size={18} />
+                            {creditosParaTodos ? `Dar ${cantidadEuros}€ a ${usuarios.length} usuarios` : `Dar ${cantidadEuros}€`}
+                          </>
+                        ) : (
+                          <>
+                            🪙 {creditosParaTodos ? `Dar a ${usuarios.length} usuarios` : `Dar ${cantidadCreditos} Puntos`}
+                          </>
+                        )}
                       </span>
                     )}
                   </button>

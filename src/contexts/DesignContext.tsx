@@ -58,8 +58,9 @@ export const cardVariants: {
 ];
 
 export function DesignProvider({ children }: { children: ReactNode }) {
-  const [design, setDesignState] = useState<DesignStyle>('default');
-  const [cardVariant, setCardVariantState] = useState<CardVariant>('default');
+  // Por defecto: Clásico Profesional con variante Minimal
+  const [design, setDesignState] = useState<DesignStyle>('clasico-profesional');
+  const [cardVariant, setCardVariantState] = useState<CardVariant>('minimal');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
