@@ -2048,27 +2048,27 @@ export default function ProfilePage() {
                         
                         {/* Tarjeta de créditos - diseño clásico */}
                         <div className="w-full lg:w-72 flex-shrink-0">
-                          <div className="rounded-xl overflow-hidden shadow-md">
-                            {/* Parte superior - Azul */}
-                            <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-5">
+                          <div className="rounded-xl overflow-hidden shadow-md border border-gray-200">
+                            {/* Parte superior - Azul suave */}
+                            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-5">
                               <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-2">
-                                  <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
+                                  <div className="w-9 h-9 bg-blue-500 rounded-lg flex items-center justify-center">
                                     <Wallet size={18} className="text-white" />
                                   </div>
-                                  <span className="text-white text-sm font-medium">{t('profile.myBalance')}</span>
+                                  <span className="text-gray-700 text-sm font-medium">{t('profile.myBalance')}</span>
                                 </div>
-                                <Gem size={18} className="text-white/60" />
+                                <Gem size={18} className="text-blue-400" />
                               </div>
                               
                               <div>
-                                <p className="text-white/70 text-xs uppercase tracking-wide mb-0.5">{t('profile.available')}</p>
-                                <span className="text-4xl font-bold text-white">{creditos.toFixed(2)}<span className="text-2xl ml-0.5 text-white/80">€</span></span>
+                                <p className="text-gray-500 text-xs uppercase tracking-wide mb-0.5">{t('profile.available')}</p>
+                                <span className="text-4xl font-bold text-gray-900">{creditos.toFixed(2)}<span className="text-2xl ml-0.5 text-blue-600">€</span></span>
                               </div>
                             </div>
                             
-                            {/* Parte inferior - Blanco/Gris */}
-                            <div className="bg-gradient-to-b from-gray-50 to-white p-4 border-t border-gray-100">
+                            {/* Parte inferior - Blanco */}
+                            <div className="bg-white p-4">
                               <button 
                                 onClick={() => setShowRecargarModal(true)}
                                 className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-semibold text-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-1.5 shadow-sm"
