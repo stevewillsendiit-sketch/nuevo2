@@ -1974,7 +1974,7 @@ export default function ProfilePage() {
               ) : (
                 /* Banner de créditos y perfil - PARTICULAR - Diseño clásico */
                 <div className="mb-6 sm:mb-8">
-                  <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl shadow-sm border border-blue-200 overflow-hidden">
                     <div className="p-6 sm:p-8">
                       <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
                         {/* Info del usuario */}
